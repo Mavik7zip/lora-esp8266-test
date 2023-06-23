@@ -13,16 +13,46 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 #define ss 15
 #define rst 16
-#define dio0 4
+#define dio0 0
 
+
+struct strt_pkt{
+  String text;
+  int rssi;
+  int snr;
+};
+
+void print_data(strt_pkt packet){
+  display.clearDisplay();
+  display.setTextSize(2);
+  display.setTextColor(WHITE);
+  display.setCursor(0,0);
+  display.print(F("Rssi: "));
+  display.print(packet.rssi);
+  display.setCursor(0,30);
+  display.print(F("Snr: "));
+  display.print(packet.snr);
+  display.display();
+}
+
+void read_packet(int packet_size){
+  strt_pkt packet;
+
+  for (int i = 0; i < packet_size; i++){
+    packet.text += (char)LoRa.read();
+  }
+  packet.rssi = LoRa.packetRssi();
+  packet.snr = LoRa.packetSnr();
+
+  print_data(packet);
+}
 
 void setup() {
   Serial.begin(9600);
 
   // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
-  if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { // Address 0x3D for 128x64
+  if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
     Serial.println(F("SSD1306 allocation failed"));
-    for(;;); // Don't proceed, loop forever
   }
 
   Serial.println("LoRa Receiver");
@@ -30,44 +60,14 @@ void setup() {
   LoRa.setPins(ss, rst, dio0);
   if (!LoRa.begin(433E6)) {
     Serial.println("Starting LoRa failed!");
-    while (1);
   }
+
   LoRa.setTxPower(20);
   LoRa.setSpreadingFactor(12);
   LoRa.setSignalBandwidth(62.5E3);
 
-  display.display();
-  display.clearDisplay();
-  display.setTextSize(1);
-  display.setTextColor(WHITE);
-  display.setCursor(40,0);
-  display.print(F("LoRa rRciver"));
+  LoRa.onReceive(read_packet);
 }
 
-void loop() {
-  // try to parse packet
-  int packetSize = LoRa.parsePacket();
-  if (packetSize) {
-    // received a packet
-    Serial.print("Pacchetto ricevuto: '");
-
-    // read packet
-    while (LoRa.available()) {
-      Serial.print((char)LoRa.read());
-    }
-
-    Serial.print(LoRa.packetRssi());
-    Serial.print(LoRa.packetSnr());
-
-    display.display();
-    display.clearDisplay();
-    display.setTextSize(2);
-    display.setTextColor(WHITE);
-    display.setCursor(0,0);
-    display.print(F("Rssi: "));
-    display.print(LoRa.packetRssi());
-    display.setCursor(0,30);
-    display.print(F("Snr: "));
-    display.print(LoRa.packetSnr());
-  }
+void loop(){
 }
