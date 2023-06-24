@@ -11,10 +11,9 @@
 #define OLED_RESET      -1  // Reset pin # (or -1 if sharing Arduino reset pin)
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
-#define ss 15
-#define rst 16
-#define dio0 0
-
+#define ss 16
+#define rst 0
+#define dio0 15
 
 struct strt_pkt{
   String text;
@@ -22,17 +21,22 @@ struct strt_pkt{
   int snr;
 };
 
+
 void print_data(strt_pkt packet){
-  display.clearDisplay();
-  display.setTextSize(2);
-  display.setTextColor(WHITE);
-  display.setCursor(0,0);
-  display.print(F("Rssi: "));
-  display.print(packet.rssi);
-  display.setCursor(0,30);
-  display.print(F("Snr: "));
-  display.print(packet.snr);
-  display.display();
+  Serial.println(packet.text);
+  Serial.println(packet.rssi);
+  Serial.println(packet.snr);
+
+  // display.clearDisplay(); //odio i display
+  // display.setTextSize(2);
+  // display.setTextColor(WHITE);
+  // display.setCursor(0,0);
+  // display.print(F("Rssi: "));
+  // display.print(packet.rssi);
+  // display.setCursor(0,30);
+  // display.print(F("Snr: "));
+  // display.print(packet.snr);
+  // display.display();
 }
 
 void read_packet(int packet_size){
@@ -50,16 +54,22 @@ void read_packet(int packet_size){
 void setup() {
   Serial.begin(9600);
 
+  Serial.println("LoRa Receiver");
+
   // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
   if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
     Serial.println(F("SSD1306 allocation failed"));
+    for(;;);
   }
 
-  Serial.println("LoRa Receiver");
-
+  while (!Serial);
   LoRa.setPins(ss, rst, dio0);
   if (!LoRa.begin(433E6)) {
     Serial.println("Starting LoRa failed!");
+    delay(100);
+    while (1);
+  }else{
+    Serial.println("Starting LoRa");
   }
 
   LoRa.setTxPower(20);
@@ -67,7 +77,10 @@ void setup() {
   LoRa.setSignalBandwidth(62.5E3);
 
   LoRa.onReceive(read_packet);
+  LoRa.receive();
 }
 
 void loop(){
+  // Serial.println("it work perfectly");
+  // delay(2000);
 }
