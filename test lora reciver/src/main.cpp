@@ -17,12 +17,16 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 struct strt_pkt{
   String text;
+  String no;
+  String numero;
   int rssi;
   int snr;
 };
 
 
 void print_data(strt_pkt packet){
+  Serial.println(packet.text);
+  Serial.println(packet.no);
   Serial.println(packet.text);
   Serial.println(packet.rssi);
   Serial.println(packet.snr);
@@ -41,10 +45,34 @@ void print_data(strt_pkt packet){
 
 void read_packet(int packet_size){
   strt_pkt packet;
+  String tmp;
+  char tmp_char;
+  int j = 0;
 
   for (int i = 0; i < packet_size; i++){
-    packet.text += (char)LoRa.read();
+    tmp_char = (char)LoRa.read();
+    if(tmp_char != '\n'){
+      tmp += tmp_char;
+    }else{
+      j++;
+      switch (j)
+      {
+      case 1:
+        packet.text = tmp;
+        break;
+
+      case 2:
+        packet.no = tmp;
+        break;
+
+      case 3:
+        packet.numero = tmp;
+        break;
+      }
+      tmp = "";
+    }
   }
+
   packet.rssi = LoRa.packetRssi();
   packet.snr = LoRa.packetSnr();
 
