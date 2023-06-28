@@ -36,9 +36,10 @@ void setup() {
     while (1);
   }
 
-  LoRa.setTxPower(20);
+  LoRa.setTxPower(18);
   LoRa.setSpreadingFactor(12);
-  LoRa.setSignalBandwidth(62.5E3);
+  LoRa.setSignalBandwidth(7.8E3);
+  LoRa.setCodingRate4(8);
 }
  
 void loop() {
