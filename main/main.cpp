@@ -104,12 +104,14 @@ int menu(){
   Serial.println("recive mode   [1]");
   Serial.println("sender mode   [2]");
   Serial.println("relay mode    [3]");
+  Serial.println("rssi monitor  [4]");
   // Serial.println("settings      [4]");
   // Serial.println("monitor       [4]");
   Serial.println("");
   Serial.println("quit          [0]");
 
   //LoRa.channelActivityDetection(); da fare
+  // int rssi = LoRa.rssi(); da fare
 
   while(!Serial.available());
 
@@ -117,15 +119,34 @@ int menu(){
 }
 
 
+void rssi_monitor_mode(){
+  Serial.println("rssi monitor mode starting");
+
+  int quit = 1;
+  int rssi;
+
+  while(quit != 0){
+    rssi = LoRa.rssi();
+
+    Serial.println(rssi);
+    
+    delay(100);
+  }
+
+  Serial.println("rssi monitor mode exiting");
+}
+
+
 void recive_mode(){
   Serial.println("recive mode starting");
+
   int quit = 1;
 
   LoRa.onReceive(read_packet);
   LoRa.receive();
 
   while(quit != 0){
-    quit = Serial.read();
+    quit = Serial.read(); //mezzo fake
     delay(100);
   }
 
@@ -136,19 +157,16 @@ void recive_mode(){
 
 void send_mode(){
   Serial.println("sender mode starting");
+
   int quit = 1;
   int counter = 0;
 
   while(quit != 0){
-    Serial.println("ciro0");
 
     LoRa.beginPacket();
-    LoRa.println("ciro");
     LoRa.println(counter);
     LoRa.println(0);
-    Serial.println("ciro2");
-    LoRa.endPacket();
-    Serial.println("ciro3");
+    LoRa.endPacket(); //too time
 
     Serial.print("sending pkg no: ");
     Serial.println(counter);
@@ -163,14 +181,26 @@ void send_mode(){
 
 
 void relay_mode(){
-  int quit = 1;
   Serial.println("relay mode starting");
 
+  int quit = 1;
+  int counter = 0;
+  
   LoRa.onReceive(read_packet);
   LoRa.receive();
 
   while(quit != 0){
+    LoRa.beginPacket();
+    LoRa.println(counter);
+    LoRa.println(0);
+    LoRa.endPacket(); //too time
 
+    Serial.print("sending pkg no: ");
+    Serial.println(counter);
+  
+    counter++;
+
+    // delay(2000);
   }
 
   LoRa.idle();
@@ -213,6 +243,9 @@ void loop(){
     break;
   case 3+48:
     relay_mode();
+    break;
+  case 4+48:
+    rssi_monitor_mode();
     break;
 
   default:
