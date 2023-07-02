@@ -223,14 +223,12 @@ void send_mode(String message) {
 */
 
 //####################################################################################################
-//####################################################################################################
 
 void setup() {
   delay(1000);
 
-
   Serial.begin(115200);
-  Serial.println("\n\nLoRa Receiver");
+  Serial.println("\n\nLoRa Main code");
 
   // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
   if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { // Address 0x3D for 128x64
