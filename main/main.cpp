@@ -15,6 +15,7 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 #define rst 0
 #define dio0 15
 
+int slt;
 struct strt_pkt{
   String text;
   int no;
@@ -23,6 +24,8 @@ struct strt_pkt{
   int snr;
 };
 
+
+void send_mode(String message);
 
 
 void print_display(strt_pkt packet){
@@ -55,7 +58,7 @@ void print_serial(strt_pkt packet){
 
 void print_data(strt_pkt packet){
   print_serial(packet);
-  print_display(packet);
+  // print_display(packet);
 }
 
 
@@ -95,6 +98,10 @@ void read_packet(int packet_size){
   packet.snr = LoRa.packetSnr();
 
   print_data(packet);
+
+  if(slt == 3+48){
+    send_mode(packet.text);
+  }
 }
 
 
@@ -103,37 +110,37 @@ int menu(){
 
   Serial.println("recive mode   [1]");
   Serial.println("sender mode   [2]");
-  Serial.println("relay mode    [3]");
-  Serial.println("rssi monitor  [4]");
-  // Serial.println("settings      [4]");
-  // Serial.println("monitor       [4]");
+  // Serial.println("relay mode    [3]");
+  Serial.println("rssi radio    [4]");
+  Serial.println("monitor       [5]");
+  Serial.println("setting gain  [6]");
   Serial.println("");
   Serial.println("quit          [0]");
 
-  //LoRa.channelActivityDetection(); da fare
   // int rssi = LoRa.rssi(); da fare
 
   while(!Serial.available());
 
-  return Serial.read();
+  return (int)Serial.read();
 }
 
 
+void set_gain(){
+  int gain;
+
+  Serial.println("value: 0-6");
+
+  while(!Serial.available());
+
+  gain = Serial.read();
+
+  LoRa.setGain(gain);
+}
+
 void rssi_monitor_mode(){
-  Serial.println("rssi monitor mode starting");
+  Serial.println("rssi radio: ");
 
-  int quit = 1;
-  int rssi;
-
-  while(quit != 0){
-    rssi = LoRa.rssi();
-
-    Serial.println(rssi);
-    
-    delay(100);
-  }
-
-  Serial.println("rssi monitor mode exiting");
+  Serial.println(LoRa.rssi());
 }
 
 
@@ -155,7 +162,7 @@ void recive_mode(){
 }
 
 
-void send_mode(){
+void send_mode(String message){
   Serial.println("sender mode starting");
 
   int quit = 1;
@@ -164,8 +171,8 @@ void send_mode(){
   while(quit != 0){
 
     LoRa.beginPacket();
+    LoRa.println(message);
     LoRa.println(counter);
-    LoRa.println(0);
     LoRa.endPacket(); //too time
 
     Serial.print("sending pkg no: ");
@@ -173,39 +180,39 @@ void send_mode(){
   
     counter++;
 
-    // delay(2000);
+    delay(2000);
   }
 
   Serial.println("sender mode exiting");
 }
 
 
-void relay_mode(){
-  Serial.println("relay mode starting");
+// void relay_mode(){
+//   Serial.println("relay mode starting");
 
-  int quit = 1;
-  int counter = 0;
+//   int quit = 1;
+//   int counter = 0;
   
-  LoRa.onReceive(read_packet);
-  LoRa.receive();
+//   LoRa.onReceive(read_packet);
+//   LoRa.receive();
 
-  while(quit != 0){
-    LoRa.beginPacket();
-    LoRa.println(counter);
-    LoRa.println(0);
-    LoRa.endPacket(); //too time
+//   while(quit != 0){
+//     LoRa.beginPacket();
+//     LoRa.println(counter);
+//     LoRa.println(0);
+//     LoRa.endPacket(); //too time
 
-    Serial.print("sending pkg no: ");
-    Serial.println(counter);
+//     Serial.print("sending pkg no: ");
+//     Serial.println(counter);
   
-    counter++;
+//     counter++;
 
-    // delay(2000);
-  }
+//     // delay(2000);
+//   }
 
-  LoRa.idle();
-  Serial.println("relay mode exiting");
-}
+//   LoRa.idle();
+//   Serial.println("relay mode exiting");
+// }
 
 
 void setup() {
@@ -229,23 +236,28 @@ void setup() {
 
   LoRa.setTxPower(18);
   LoRa.setSpreadingFactor(12);
-  LoRa.setSignalBandwidth(7.8E3);
+  LoRa.setSignalBandwidth(31.25E3);
   LoRa.setCodingRate4(8);
 }
 
 void loop(){
-  switch (menu()){
+  slt = menu();
+  
+  switch (slt){
   case 1+48:
     recive_mode();
     break;
   case 2+48:
-    send_mode();
+    send_mode("ciro");
     break;
   case 3+48:
-    relay_mode();
+    recive_mode();
     break;
   case 4+48:
     rssi_monitor_mode();
+    break;
+   case 6+48:
+    set_gain();
     break;
 
   default:
