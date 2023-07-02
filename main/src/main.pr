@@ -113,14 +113,12 @@ int menu() {
 
   Serial.println("receiver mode      [1]");
   Serial.println("sender mode        [2]");
-  //Serial.println("relay mode capo    [3]");
-  //Serial.println("relay mode schiavo [4]");
+  //Serial.println("relay master     [3]");
+  //Serial.println("relay slave      [4]");
   Serial.println("rssi radio         [5]");
   Serial.println("monitor            [6]");
   Serial.println("set gain           [7]");
-  Serial.println("\nquit               [0]");
-
-  // int rssi = LoRa.rssi(); da fare
+  Serial.println("\nquit             [0]");
 
   while (!Serial.available());
 
@@ -133,13 +131,13 @@ void set_gain() {
   Serial.println("value: 0-6 (0 => automatico)");
 
   while (!Serial.available());
-  int gain = Serial.read();
+  int gain = ((int)Serial.read() - 48);
 
   if (gain <= 6 && gain >= 0) {
     LoRa.setGain(gain);
     Serial.println("gain = " + String(gain));
   } else {
-    Serial.println("ritenta sarai più fortunato");
+    Serial.println("value not set");
   }
 
   Serial.println();
