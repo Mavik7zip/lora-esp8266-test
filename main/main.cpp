@@ -114,14 +114,14 @@ void read_packet(int packet_size) {
 int menu() {
   while (!Serial);
 
-  Serial.println("recive mode   [1]");
-  Serial.println("sender mode   [2]");
-  // Serial.println("relay mode    [3]");
-  Serial.println("rssi radio    [4]");
-  Serial.println("monitor       [5]");
-  Serial.println("setting gain  [6]");
-  Serial.println("");
-  Serial.println("quit          [0]");
+  Serial.println("receiver mode      [1]");
+  Serial.println("sender mode        [2]");
+  //Serial.println("relay mode capo    [3]");
+  //Serial.println("relay mode schiavo [4]");
+  Serial.println("rssi radio         [5]");
+  Serial.println("monitor            [6]");
+  Serial.println("set gain           [7]");
+  Serial.println("\nquit               [0]");
 
   // int rssi = LoRa.rssi(); da fare
 
@@ -267,12 +267,17 @@ void loop() {
       send_mode("ciro");
       break;
     case 3+48:
-      recive_mode();
+      //relay_mode_capo();
       break;
     case 4+48:
+      //ralay_mode_schiavo();
+      break;
+    case 5+48:
       rssi_monitor_mode();
       break;
     case 6+48:
+      break;
+    case 7+48:
       set_gain();
       break;
 
