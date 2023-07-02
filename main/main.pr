@@ -1,5 +1,3 @@
-//Codice di gubbo del mio compleanno
-
 //https://github.com/Mavik7zip/lora-esp8266-test/blob/main/main/main.cpp
 
 
@@ -48,16 +46,16 @@ void print_display(strt_pkt packet) {
 //####################################################################################################
 
 void print_serial(strt_pkt packet) {
-  Serial.print("\ntext:   ");
+  Serial.println("text:   ");
   Serial.print(packet.text);
-  Serial.print("\nno pkt: ");
+  Serial.println("no pkt: ");
   Serial.print(packet.no);
   // Serial.print("dev ping: ");
   // Serial.print(packet.dev_ping);
-  Serial.print("\nrssi:   ");
+  Serial.println("rssi:   ");
   Serial.print(packet.rssi);
-  Serial.print("\nsnr:    ");
-  Serial.println(packet.snr);
+  Serial.println("snr:    ");
+  Serial.print(packet.snr);
 }
 
 //####################################################################################################
@@ -81,7 +79,7 @@ void read_packet(int packet_size) {
     if (tmp_char != '\n') {               //verifica carattere di stop
       tmp += tmp_char;
     } else {
-      switch (j) {                        //bho
+      switch (j) {                        //parsing dati con println
         case 0:
           packet.text = tmp;
           break;
