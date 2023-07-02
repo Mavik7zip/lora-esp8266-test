@@ -111,16 +111,14 @@ void read_packet(int packet_size) {
 int menu() {
   while (!Serial);
 
-  Serial.println("recive mode   [1]");
-  Serial.println("sender mode   [2]");
-  // Serial.println("relay mode    [3]");
-  Serial.println("rssi radio    [4]");
-  Serial.println("monitor       [5]");
-  Serial.println("setting gain  [6]");
-  Serial.println("");
-  Serial.println("quit          [0]");
-
-  // int rssi = LoRa.rssi(); da fare
+  Serial.println("receiver mode      [1]");
+  Serial.println("sender mode        [2]");
+  //Serial.println("relay master     [3]");
+  //Serial.println("relay slave      [4]");
+  Serial.println("rssi radio         [5]");
+  Serial.println("monitor            [6]");
+  Serial.println("set gain           [7]");
+  Serial.println("\nquit             [0]");
 
   while (!Serial.available());
 
@@ -133,9 +131,14 @@ void set_gain() {
   Serial.println("value: 0-6 (0 => automatico)");
 
   while (!Serial.available());
-  int gain = Serial.read();
+  int gain = ((int)Serial.read() - 48);
 
-  LoRa.setGain(gain);
+  if (gain <= 6 && gain >= 0) {
+    LoRa.setGain(gain);
+    Serial.println("gain = " + String(gain));
+  } else {
+    Serial.println("value not set");
+  }
 
   Serial.println();
 }
@@ -194,6 +197,9 @@ void send_mode(String message) {
 
 //####################################################################################################
 
+
+// !! DIFFERENZA TRA CAPO E SCHIAVO !!
+
 /*
   void relay_mode() {
   Serial.println("relay mode starting");
@@ -222,6 +228,7 @@ void send_mode(String message) {
   }
 */
 
+//####################################################################################################
 //####################################################################################################
 
 void setup() {
@@ -281,12 +288,18 @@ void loop() {
       send_mode("ciro");
       break;
     case 3+48:
-      recive_mode();
+      //relay_mode_capo();
       break;
     case 4+48:
+      //ralay_mode_schiavo();
+      break;
+    case 5+48:
       rssi_monitor_mode();
       break;
     case 6+48:
+      //niente per ora
+      break;
+    case 7+48:
       set_gain();
       break;
 
