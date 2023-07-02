@@ -16,6 +16,8 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 #define RST 0
 #define DIO0 15
 
+#define send_delay 2000
+
 
 int slt;
 struct strt_pkt {
@@ -113,12 +115,13 @@ int menu() {
 
   Serial.println("receiver mode      [1]");
   Serial.println("sender mode        [2]");
-  //Serial.println("relay master     [3]");
-  //Serial.println("relay slave      [4]");
+  // Serial.println("relay master       [3]");
+  // Serial.println("relay slave        [4]");
   Serial.println("rssi radio         [5]");
-  Serial.println("monitor            [6]");
-  Serial.println("set gain           [7]");
-  Serial.println("\nquit             [0]");
+  Serial.println("set gain           [6]");
+  Serial.println("message mode       [7]");
+  Serial.println("                      ");
+  Serial.println("quit               [0]");
 
   while (!Serial.available());
 
@@ -145,8 +148,36 @@ void set_gain() {
 
 //####################################################################################################
 
-void rssi_monitor_mode() {
-  Serial.print("\nrssi radio: ");
+void set_bandwidth() {
+  Serial.println("(7.8 10.4 15.6 20.8 31.25 41.7 62.5 125 250 500)(31.25 => default)");
+
+  while (!Serial.available());
+  double bandwidth = (Serial.readString()).toDouble();
+
+  LoRa.setSignalBandwidth(bandwidth*1000);
+  Serial.println("bandwidth = " + String(bandwidth));
+
+  Serial.println();
+}
+
+//####################################################################################################
+
+void set_txpower() {
+  Serial.println("(7.8 10.4 15.6 20.8 31.25 41.7 62.5 125 250 500)(31.25 => default)");
+
+  while (!Serial.available());
+  int dbm = Serial.parseInt();
+
+  LoRa.setTxPower(dbm);
+  Serial.println("bandwidth = " + String(dbm));
+
+  Serial.println();
+}
+
+//####################################################################################################
+
+void rssi_monitor() {
+  Serial.println("rssi radio: ");
 
   Serial.println(LoRa.rssi());
 }
@@ -163,7 +194,7 @@ void recive_mode() {
 
   while (quit != 0) {
     quit = Serial.read(); //due mezzi fake
-    delay(100);
+    delay(200);
   }
 
   LoRa.idle();
@@ -172,27 +203,59 @@ void recive_mode() {
 
 //####################################################################################################
 
+void send_data(String message, int counter) {
+
+  LoRa.beginPacket();
+  LoRa.println(message);
+  LoRa.println(counter);
+  LoRa.endPacket(); //too time
+}
+
+//####################################################################################################
+
 void send_mode(String message) {
-  Serial.println("inizio sender mode");
+  Serial.println("sender mode starting");
 
   int quit = 1;
   int counter = 0;
 
   while (quit != 0) {
-    LoRa.beginPacket();
-    LoRa.println(message);
-    LoRa.println(counter);
-    LoRa.endPacket(); //too time
+    send_data(message, counter);
 
     Serial.print("sending pkg n°: ");
     Serial.println(counter);
 
     counter++;
 
-    delay(2000);
+    delay(send_delay);
   }
 
-  Serial.println("uscita sender mode");
+  Serial.println("sender mode exiting");
+}
+
+//####################################################################################################
+
+void send_message_mode() {
+  Serial.println("send message mode starting");
+
+  int quit = 1;
+  int counter = 0;
+  String message;
+
+  while (quit != 0) {
+
+    while (!Serial.available());
+    message = Serial.readString();
+
+    send_data(message, counter);
+    Serial.println(message + String(counter));
+
+    counter++;
+
+    delay(send_delay);
+  }
+
+  Serial.println("send message mode exiting");
 }
 
 //####################################################################################################
@@ -288,19 +351,19 @@ void loop() {
       send_mode("ciro");
       break;
     case 3+48:
-      //relay_mode_capo();
+      //relay_master();
       break;
     case 4+48:
-      //ralay_mode_schiavo();
+      //ralay_slave();
       break;
     case 5+48:
-      rssi_monitor_mode();
+      rssi_monitor();
       break;
     case 6+48:
-      //niente per ora
+      set_gain();
       break;
     case 7+48:
-      set_gain();
+      send_message_mode();
       break;
 
     default:
