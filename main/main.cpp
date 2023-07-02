@@ -42,17 +42,17 @@ void print_display(strt_pkt packet){
 }
 
 
-void print_serial(strt_pkt packet){
-  Serial.println("text");
-  Serial.println(packet.text);
-  Serial.println("no pkt");
-  Serial.println(packet.no);
-  // Serial.println("dev ping");
-  // Serial.println(packet.dev_ping);
-  Serial.println("rssi");
-  Serial.println(packet.rssi);
-  Serial.println("snr");
-  Serial.println(packet.snr);
+void print_serial(strt_pkt packet) {
+  Serial.println("text:   ");
+  Serial.print(packet.text);
+  Serial.println("no pkt: ");
+  Serial.print(packet.no);
+  // Serial.print("dev ping: ");
+  // Serial.print(packet.dev_ping);
+  Serial.println("rssi:   ");
+  Serial.print(packet.rssi);
+  Serial.println("snr:    ");
+  Serial.print(packet.snr);
 }
 
 
