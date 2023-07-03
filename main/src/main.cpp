@@ -326,7 +326,7 @@ void bidirectional_mode()
 
     if (packet.is_arrive == true)
     {
-      if (packet.id != id)
+      if (packet.id == id)
       {
         send_data("bidirectional test", packet.counter, id);
         packet.is_arrive = false;
@@ -335,7 +335,8 @@ void bidirectional_mode()
 
     if (counter % 4 == 0)
     {
-      send_data("bidirectional test", counter, id);
+      send_data("bidirectional test", counter/4, id);
+      Serial.println("sending No" + String(counter/4));
     }
 
     counter++;
