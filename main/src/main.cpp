@@ -131,8 +131,7 @@ int menu()
 
 int settings_menu()
 {
-  while (!Serial)
-    ;
+  while (!Serial);
 
   Serial.println("set gain           [1]");
   Serial.println("set bandwidth      [2]");
@@ -141,8 +140,7 @@ int settings_menu()
   Serial.println("                      ");
   Serial.println("quit               [0]");
 
-  while (!Serial.available())
-    ;
+  while (!Serial.available());
 
   return (int)Serial.read();
 }
