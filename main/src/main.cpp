@@ -117,9 +117,23 @@ int menu() {
   Serial.println("sender mode        [2]");
   // Serial.println("relay master       [3]");
   // Serial.println("relay slave        [4]");
-  Serial.println("rssi radio         [5]");
-  Serial.println("set gain           [6]");
-  Serial.println("message mode       [7]");
+  Serial.println("message mode       [5]");
+  Serial.println("settings menu      [6]");
+  Serial.println("                      ");
+  Serial.println("quit               [0]");
+
+  while (!Serial.available());
+
+  return (int)Serial.read();
+}
+
+int settings_menu() {
+  while (!Serial);
+
+  Serial.println("set gain           [1]");
+  Serial.println("set bandwidth      [2]");
+  Serial.println("set txpower        [3]");
+  Serial.println("rssi radio         [4]");
   Serial.println("                      ");
   Serial.println("quit               [0]");
 
@@ -152,7 +166,7 @@ void set_bandwidth() {
   Serial.println("(7.8 10.4 15.6 20.8 31.25 41.7 62.5 125 250 500)(31.25 => default)");
 
   while (!Serial.available());
-  double bandwidth = (Serial.readString()).toDouble();
+  double bandwidth = (Serial.readString()).toDouble(); // fa cacare il read string 
 
   LoRa.setSignalBandwidth(bandwidth*1000);
   Serial.println("bandwidth = " + String(bandwidth));
@@ -163,7 +177,7 @@ void set_bandwidth() {
 //####################################################################################################
 
 void set_txpower() {
-  Serial.println("(7.8 10.4 15.6 20.8 31.25 41.7 62.5 125 250 500)(31.25 => default)");
+  Serial.println("(2-20)(18 => default)");
 
   while (!Serial.available());
   int dbm = Serial.parseInt();
@@ -176,7 +190,7 @@ void set_txpower() {
 
 //####################################################################################################
 
-void rssi_monitor() {
+void rssi_radio() {
   Serial.println("rssi radio: ");
 
   Serial.println(LoRa.rssi());
@@ -298,13 +312,15 @@ void setup() {
   delay(1000);
 
   Serial.begin(115200);
-  Serial.println("\n\nLoRa Main code");
+  Serial.setTimeout(3000);
+
+  Serial.println("LoRa Main code");
 
   // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
   if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { // Address 0x3D for 128x64
-    Serial.println("SSD1306 non avviato");
+    Serial.println("SSD1306 starting fail");
     //while (1); //uncommentare perchè se non va almeno posso usarre la seriale
-  } else Serial.println("SSD1306 avviato correttamente");
+  } else Serial.println("SSD1306 started");
 
   //scrivo le prime cose cose sul display
   //display.display();
@@ -325,7 +341,7 @@ void setup() {
 
     display.clearDisplay();
     display.setCursor(0, 0);
-    display.print("Avvio Antenna fallito");
+    display.print("started LoRa");
 
     while (1);
   }
@@ -342,6 +358,7 @@ void setup() {
 
 void loop() {
   slt = menu();
+  int settings_slt = 99;
 
   switch (slt) {
     case 1+48:
@@ -357,13 +374,34 @@ void loop() {
       //ralay_slave();
       break;
     case 5+48:
-      rssi_monitor();
+      send_message_mode();
       break;
     case 6+48:
-      set_gain();
-      break;
-    case 7+48:
-      send_message_mode();
+      while(settings_slt != 48){
+        settings_slt = settings_menu();
+
+        switch (settings_slt) {
+          case 0:
+            slt = 0;
+            break;
+          case 1+48:
+            set_gain();
+            break;
+          case 2+48:
+            set_bandwidth();
+            break;
+          case 3+48:
+            set_txpower();
+            break;
+          case 4+48:
+            rssi_radio();
+            break;
+          
+          default:
+            break;
+        }
+      }
+
       break;
 
     default:
