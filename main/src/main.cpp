@@ -38,8 +38,7 @@ void send_mode(String message);
 
 // ####################################################################################################
 
-void print_display()
-{
+void print_display(){
   display.clearDisplay(); // odio i display
   display.setTextSize(2);
   display.setTextColor(WHITE);
@@ -54,8 +53,7 @@ void print_display()
 
 // ####################################################################################################
 
-void print_serial()
-{
+void print_serial(){
   Serial.println("    text: " + String(packet.text));
   Serial.println("  No pkt: " + String(packet.counter));
   Serial.println("    ping: " + String(packet.ping));
@@ -105,13 +103,8 @@ void read_packet(int packet_size)
   packet.rssi = LoRa.packetRssi();
   packet.snr = LoRa.packetSnr();
 
-  // print_serial();
-  // print_display();
+  packet.is_arrive = true;
 
-  if (slt == 3 + 48)
-  { // mhh mannaggia al perro
-    packet.is_arrive = true;
-  }
 }
 
 // ####################################################################################################
@@ -220,8 +213,7 @@ void rssi_radio()
 
 // ####################################################################################################
 
-void recive_mode()
-{
+void recive_mode(){
   Serial.println("recive mode starting");
 
   int quit = 1;
@@ -229,11 +221,9 @@ void recive_mode()
   LoRa.onReceive(read_packet);
   LoRa.receive();
 
-  while (quit != 0)
-  {
+  while (quit != 0){
     quit = Serial.read(); // due mezzi fake
-    if (packet.is_arrive == true)
-    {
+    if (packet.is_arrive == true){
       print_serial();
       packet.is_arrive = false;
     }
@@ -259,8 +249,7 @@ void send_data(String message, int counter, int id)
 
 // ####################################################################################################
 
-void send_mode(String message)
-{
+void send_mode(String message){ 
   Serial.println("sender mode starting");
 
   int quit = 1;
@@ -283,19 +272,16 @@ void send_mode(String message)
 
 // ####################################################################################################
 
-void send_message_mode()
-{
+void send_message_mode(){
   Serial.println("send message mode starting");
 
   int quit = 1;
   int counter = 0;
   String message;
 
-  while (quit != 0)
-  {
+  while (quit != 0){
 
-    while (!Serial.available())
-      ;
+    while (!Serial.available());
     message = Serial.readString();
 
     send_data(message, counter, 0);
@@ -311,8 +297,7 @@ void send_message_mode()
 
 // ####################################################################################################
 
-void bidirectional_mode()
-{
+void bidirectional_mode(){
   Serial.println("bidirectional mode starting");
 
   int quit = 1;
@@ -321,20 +306,18 @@ void bidirectional_mode()
   LoRa.onReceive(read_packet);
   LoRa.receive();
 
-  while (quit != 0)
-  {
+  while (quit != 0){
 
-    if (packet.is_arrive == true)
-    {
-      if (packet.id == id)
-      {
+    if (packet.is_arrive == true){
+      if (packet.id != id){
         send_data("bidirectional test", packet.counter, id);
         packet.is_arrive = false;
       }
+    } else {
+      print_serial();
     }
 
-    if (counter % 4 == 0)
-    {
+    if (counter % 4 == 0){
       send_data("bidirectional test", counter/4, id);
       Serial.println("sending No" + String(counter/4));
     }
