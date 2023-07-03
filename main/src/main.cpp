@@ -1,3 +1,5 @@
+//codice main
+
 #include <SPI.h>
 #include <LoRa.h>
 #include <Wire.h>
@@ -21,8 +23,7 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 int slt;
 // srand(time(NULL)); bo non gli piace
 int id = rand() % 9999;
-struct
-{
+struct {
   String text;
   int counter;
   int ping;
@@ -38,7 +39,7 @@ void send_mode(String message);
 
 // ####################################################################################################
 
-void print_display(){
+void print_display() {
   display.clearDisplay(); // odio i display
   display.setTextSize(2);
   display.setTextColor(WHITE);
@@ -53,7 +54,7 @@ void print_display(){
 
 // ####################################################################################################
 
-void print_serial(){
+void print_serial() {
   Serial.println("    text: " + String(packet.text));
   Serial.println("  No pkt: " + String(packet.counter));
   Serial.println("    ping: " + String(packet.ping));
@@ -63,36 +64,29 @@ void print_serial(){
 
 // ####################################################################################################
 
-void read_packet(int packet_size)
-{
+void read_packet(int packet_size) {
   String tmp;
   char tmp_char;
   int j = 0;
 
-  for (int i = 0; i < packet_size; i++)
-  {
+  for (int i = 0; i < packet_size; i++) {
     tmp_char = (char)LoRa.read();
 
-    if (tmp_char != '\n')
-    {
+    if (tmp_char != '\n') {
       tmp += tmp_char;
-    }
-    else
-    {
+    } else {
+      switch (j) {
+        case 0:
+          packet.text = tmp;
+          break;
 
-      switch (j)
-      {
-      case 0:
-        packet.text = tmp;
-        break;
+        case 1:
+          packet.counter = tmp.toInt();
+          break;
 
-      case 1:
-        packet.counter = tmp.toInt();
-        break;
-
-      case 2:
-        packet.id = tmp.toInt();
-        break;
+        case 2:
+          packet.id = tmp.toInt();
+          break;
       }
 
       j++;
@@ -104,15 +98,12 @@ void read_packet(int packet_size)
   packet.snr = LoRa.packetSnr();
 
   packet.is_arrive = true;
-
 }
 
 // ####################################################################################################
 
-int menu()
-{
-  while (!Serial)
-    ;
+int menu() {
+  while (!Serial);
 
   Serial.println("receiver mode      [1]");
   Serial.println("sender mode        [2]");
@@ -123,14 +114,12 @@ int menu()
   Serial.println("                      ");
   Serial.println("quit               [0]");
 
-  while (!Serial.available())
-    ;
+  while (!Serial.available());
 
   return (int)Serial.read();
 }
 
-int settings_menu()
-{
+int settings_menu() {
   while (!Serial);
 
   Serial.println("set gain           [1]");
@@ -141,27 +130,21 @@ int settings_menu()
   Serial.println("quit               [0]");
 
   while (!Serial.available());
-
   return (int)Serial.read();
 }
 
 // ####################################################################################################
 
-void set_gain()
-{
+void set_gain() {
   Serial.println("value: 0-6 (0 => automatico)");
 
-  while (!Serial.available())
-    ;
+  while (!Serial.available());
   int gain = ((int)Serial.read() - 48);
 
-  if (gain <= 6 && gain >= 0)
-  {
+  if (gain <= 6 && gain >= 0) {
     LoRa.setGain(gain);
     Serial.println("gain = " + String(gain));
-  }
-  else
-  {
+  }  else {
     Serial.println("value not set");
   }
 
@@ -170,13 +153,11 @@ void set_gain()
 
 // ####################################################################################################
 
-void set_bandwidth()
-{
+void set_bandwidth() {
   Serial.println("(7.8 10.4 15.6 20.8 31.25 41.7 62.5 125 250 500)(31.25 => default)");
 
-  while (!Serial.available())
-    ;
-  double bandwidth = (Serial.readString()).toDouble(); // fa cacare il read string
+  while (!Serial.available());
+  double bandwidth = (Serial.readString()).toDouble(); //fa cacare il read string
 
   LoRa.setSignalBandwidth(bandwidth * 1000);
   Serial.println("bandwidth = " + String(bandwidth));
@@ -186,12 +167,10 @@ void set_bandwidth()
 
 // ####################################################################################################
 
-void set_txpower()
-{
+void set_txpower() {
   Serial.println("(2-20)(18 => default)");
 
-  while (!Serial.available())
-    ;
+  while (!Serial.available());
   int dbm = Serial.parseInt();
 
   LoRa.setTxPower(dbm);
@@ -202,8 +181,7 @@ void set_txpower()
 
 // ####################################################################################################
 
-void rssi_radio()
-{
+void rssi_radio() {
   Serial.println("rssi radio: ");
 
   Serial.println(LoRa.rssi());
@@ -211,7 +189,7 @@ void rssi_radio()
 
 // ####################################################################################################
 
-void recive_mode(){
+void recive_mode() {
   Serial.println("recive mode starting");
 
   int quit = 1;
@@ -219,9 +197,9 @@ void recive_mode(){
   LoRa.onReceive(read_packet);
   LoRa.receive();
 
-  while (quit != 0){
+  while (quit != 0) {
     quit = Serial.read(); // due mezzi fake
-    if (packet.is_arrive == true){
+    if (packet.is_arrive == true) {
       print_serial();
       packet.is_arrive = false;
     }
@@ -235,9 +213,7 @@ void recive_mode(){
 
 // ####################################################################################################
 
-void send_data(String message, int counter, int id)
-{
-
+void send_data(String message, int counter, int id) {
   LoRa.beginPacket();
   LoRa.println(message);
   LoRa.println(counter);
@@ -247,14 +223,13 @@ void send_data(String message, int counter, int id)
 
 // ####################################################################################################
 
-void send_mode(String message){ 
+void send_mode(String message) {
   Serial.println("sender mode starting");
 
   int quit = 1;
   int counter = 0;
 
-  while (quit != 0)
-  {
+  while (quit != 0) {
     send_data(message, counter, id);
 
     Serial.print("sending pkg n°: ");
@@ -270,14 +245,14 @@ void send_mode(String message){
 
 // ####################################################################################################
 
-void send_message_mode(){
+void send_message_mode() {
   Serial.println("send message mode starting");
 
   int quit = 1;
   int counter = 0;
   String message;
 
-  while (quit != 0){
+  while (quit != 0) {
 
     while (!Serial.available());
     message = Serial.readString();
@@ -295,7 +270,7 @@ void send_message_mode(){
 
 // ####################################################################################################
 
-void bidirectional_mode(){
+void bidirectional_mode() {
   Serial.println("bidirectional mode starting");
 
   int quit = 1;
@@ -304,10 +279,10 @@ void bidirectional_mode(){
   LoRa.onReceive(read_packet);
   LoRa.receive();
 
-  while (quit != 0){
+  while (quit != 0) {
 
-    if (packet.is_arrive == true){
-      if (packet.id != id){
+    if (packet.is_arrive == true) {
+      if (packet.id != id) {
         send_data("bidirectional test", packet.counter, id);
         packet.is_arrive = false;
       }
@@ -315,9 +290,9 @@ void bidirectional_mode(){
       print_serial();
     }
 
-    if (counter % 4 == 0){
-      send_data("bidirectional test", counter/4, id);
-      Serial.println("sending No" + String(counter/4));
+    if (counter % 4 == 0) {
+      send_data("bidirectional test", counter / 4, id);
+      Serial.println("sending No" + String(counter / 4));
     }
 
     counter++;
@@ -332,8 +307,7 @@ void bidirectional_mode(){
 // ####################################################################################################
 // ####################################################################################################
 
-void setup()
-{
+void setup() {
   delay(1000);
 
   Serial.begin(115200);
@@ -342,16 +316,13 @@ void setup()
   Serial.println("LoRa Main code");
 
   // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
-  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C))
-  { // Address 0x3D for 128x64
+  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { //Address 0x3D for 128x64
     Serial.println("SSD1306 starting fail");
     // while (1); //uncommentare perchè se non va almeno posso usarre la seriale
-  }
-  else
-    Serial.println("SSD1306 started");
+  } else Serial.println("SSD1306 started");
 
   // scrivo le prime cose cose sul display
-  // display.display();
+  //display.display();
   display.clearDisplay();
   display.setTextSize(1);
   display.setTextColor(WHITE);
@@ -359,25 +330,22 @@ void setup()
   display.print("LoRa Main");
   display.display();
 
-  while (!Serial)
-    ; // aspetto la seriale
+  while (!Serial); // aspetto la seriale
 
   // starto l'antenna a 433 MHz
   LoRa.setPins(NSS, RST, DIO0);
-  if (!LoRa.begin(433E6))
-  {
+  if (!LoRa.begin(433E6)) {
     Serial.println("Starting LoRa failed!");
 
     display.clearDisplay();
     display.setCursor(0, 0);
     display.print("started LoRa");
 
-    while (1)
-      ;
+    while (1);
   }
 
-  LoRa.setTxPower(18); // setto la potenza d'uscita (18 dBm)
-  // LoRa.setGain(6);                  //setto il guadagno in ingresso (0-6 dB con 0 è automatico)
+  LoRa.setTxPower(18);              // setto la potenza d'uscita (18 dBm)
+  // LoRa.setGain(6);                  // setto il guadagno in ingresso (0-6 dB con 0 è automatico)
   LoRa.setSpreadingFactor(12);      // setto il fattore di diffusione (12 mele)
   LoRa.setSignalBandwidth(31.25E3); // setto la larghezza di banda (7.8 10.4 15.6 20.8 31.25 41.7 62.5 125 250 500)
   LoRa.setCodingRate4(8);           // setto la velocità di codifica (8)
@@ -385,60 +353,53 @@ void setup()
 
 // ####################################################################################################
 
-void loop()
-{
+void loop() {
   slt = menu();
   int settings_slt = 99;
 
-  switch (slt)
-  {
-  case 1 + 48:
-    recive_mode();
-    break;
-  case 2 + 48:
-    send_mode("ciro");
-    break;
-  case 3 + 48:
-    bidirectional_mode();
-    break;
-  case 4 + 48:
-    // ralay_slave();
-    break;
-  case 5 + 48:
-    send_message_mode();
-    break;
-  case 6 + 48:
+  switch (slt) {
+    case 1 + 48:
+      recive_mode();
+      break;
+    case 2 + 48:
+      send_mode("ciro");
+      break;
+    case 3 + 48:
+      bidirectional_mode();
+      break;
+    case 4 + 48:
+      // ralay_slave();
+      break;
+    case 5 + 48:
+      send_message_mode();
+      break;
+    case 6 + 48:
+      while (settings_slt != 48) {
+        settings_slt = settings_menu();
 
-    while (settings_slt != 48)
-    {
-      settings_slt = settings_menu();
+        switch (settings_slt) {
+          case 0:
+            slt = 0;
+            break;
+          case 1 + 48:
+            set_gain();
+            break;
+          case 2 + 48:
+            set_bandwidth();
+            break;
+          case 3 + 48:
+            set_txpower();
+            break;
+          case 4 + 48:
+            rssi_radio();
+            break;
 
-      switch (settings_slt)
-      {
-      case 0:
-        slt = 0;
-        break;
-      case 1 + 48:
-        set_gain();
-        break;
-      case 2 + 48:
-        set_bandwidth();
-        break;
-      case 3 + 48:
-        set_txpower();
-        break;
-      case 4 + 48:
-        rssi_radio();
-        break;
+          default:
+            break;
+        }
+      } break;
 
-      default:
-        break;
-      }
-    }
-
-    break;
-
-  default:
-    break;
+    default:
+      break;
   }
 }
