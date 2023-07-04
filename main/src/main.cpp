@@ -174,7 +174,7 @@ void set_txpower() {
   int dbm = Serial.parseInt();
 
   LoRa.setTxPower(dbm);
-  Serial.println("bandwidth = " + String(dbm));
+  Serial.println("txpower = " + String(dbm));
 
   Serial.println();
 }
