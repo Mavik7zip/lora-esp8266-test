@@ -313,6 +313,8 @@ void setup() {
   Serial.begin(115200);
   Serial.setTimeout(3000);
 
+  Serial.println();
+  Serial.println();
   Serial.println("LoRa Main code");
 
   // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
