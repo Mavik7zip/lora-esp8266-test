@@ -1,2 +1,3 @@
 code splitting 
-settings menu
+dont print ping
+do ping in bidirectional mode with millis

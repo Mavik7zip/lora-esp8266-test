@@ -285,9 +285,9 @@ void bidirectional_mode() {
       if (packet.id != id) {
         send_data("bidirectional test", packet.counter, id);
         packet.is_arrive = false;
+      } else {
+        print_serial();
       }
-    } else {
-      print_serial();
     }
 
     if (counter % 4 == 0) {
