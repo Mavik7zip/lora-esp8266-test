@@ -341,7 +341,8 @@ void setup() {
 
     display.clearDisplay();
     display.setCursor(0, 0);
-    display.print("started LoRa failed");
+    display.print("starting LoRa failed");
+    display.display();
 
     while (1);
   }
