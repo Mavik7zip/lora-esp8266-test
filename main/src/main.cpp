@@ -124,7 +124,7 @@ void read_packet(int packet_size) {
 
 int menu() {
   while (!Serial);
-
+  Serial.println();
   Serial.println("----------------------");
   Serial.println("receiver mode      [1]");
   Serial.println("sender mode        [2]");
