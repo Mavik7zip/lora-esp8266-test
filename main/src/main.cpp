@@ -344,13 +344,13 @@ void setup() {
     display.print("starting LoRa failed");
     display.display();
 
-    while (1);
+    // while (1); test
   }
 
   LoRa.setTxPower(18);              // setto la potenza d'uscita (18 dBm)
   // LoRa.setGain(6);                  // setto il guadagno in ingresso (0-6 dB con 0 è automatico)
   LoRa.setSpreadingFactor(12);      // setto il fattore di diffusione (12 mele)
-  LoRa.setSignalBandwidth(31.25E3); // setto la larghezza di banda (7.8 10.4 15.6 20.8 31.25 41.7 62.5 125 250 500)
+  LoRa.setSignalBandwidth(125E3); // setto la larghezza di banda (7.8 10.4 15.6 20.8 31.25 41.7 62.5 125 250 500)
   LoRa.setCodingRate4(8);           // setto la velocità di codifica (8)
 }
 
