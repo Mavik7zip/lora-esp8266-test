@@ -85,7 +85,7 @@ String read_string() {
     if (read != '\n') {
       string += read;
     }
-  }while (read != '\n');
+  } while (read != '\n');
 
   return string;
 }
@@ -104,17 +104,9 @@ void read_packet(int packet_size) {
       tmp += tmp_char;
     } else {
       switch (j) {
-        case 0:
-          packet.text = tmp;
-          break;
-
-        case 1:
-          packet.counter = tmp.toInt();
-          break;
-
-        case 2:
-          packet.id = tmp.toInt();
-          break;
+        case 0: packet.text = tmp;            break;
+        case 1: packet.counter = tmp.toInt(); break;
+        case 2: packet.id = tmp.toInt();      break;
       }
 
       j++;
@@ -317,7 +309,7 @@ void bidirectional_mode() {
 
     if (packet.is_arrive == true) {
       if (packet.id == id) {
-        if (counter % 4 == 0){
+        if (counter % 4 == 0) {
           print_serial();
         }
       } else {
