@@ -316,12 +316,14 @@ void bidirectional_mode() {
   while (quit != 0) {
 
     if (packet.is_arrive == true) {
-      if (packet.id != id) {
+      if (packet.id == id) {
+        if (counter % 4 == 0){
+          print_serial();
+        }
+      } else {
         send_data("bidirectional test", packet.counter, packet.id);
         LoRa.receive();
         packet.is_arrive = false;
-      } else {
-        print_serial();
       }
     }
 
