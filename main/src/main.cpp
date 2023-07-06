@@ -64,6 +64,25 @@ void print_serial() {
 
 // ####################################################################################################
 
+String read_string() {
+  char read;
+  String string;
+
+  while (read != '\n'){
+
+    while (!Serial.available());
+    read = Serial.read();
+    
+    if (read != '\n'){
+      string += read;
+    }
+  }
+  
+  return string;
+}
+
+// ####################################################################################################
+
 void read_packet(int packet_size) {
   String tmp;
   char tmp_char;
@@ -254,15 +273,12 @@ void send_message_mode() {
 
   while (quit != 0) {
 
-    while (!Serial.available());
-    message = Serial.readString();
+    message = read_string();
 
     send_data(message, counter, 0);
     Serial.println(message + String(counter));
 
     counter++;
-
-    delay(send_delay);
   }
 
   Serial.println("send message mode exiting");
@@ -283,7 +299,7 @@ void bidirectional_mode() {
 
     if (packet.is_arrive == true) {
       if (packet.id != id) {
-        send_data("bidirectional test", packet.counter, id);
+        send_data("bidirectional test", packet.counter, packet.id);
         packet.is_arrive = false;
       } else {
         print_serial();
