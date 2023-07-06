@@ -50,6 +50,14 @@ void send_mode(String message);
 
 // ####################################################################################################
 
+void serialFlush() {
+  while (Serial.available() > 0) {
+    Serial.read();
+  }
+}
+
+// ####################################################################################################
+
 void print_display() {
   display.clearDisplay(); // odio i display
   display.setTextSize(2);
@@ -230,17 +238,15 @@ void rssi_radio() {
 
 // ####################################################################################################
 
-void recive_mode() {
+void receive_mode() {
   Serial.println("  Starting receive mode");
 
-  bool quit = false;
+  boolean quit = false;
 
   LoRa.onReceive(read_packet);
   LoRa.receive();
 
   while (quit != 1) {
-    quit = Serial.read(); // due mezzi fake
-
     if (packet.is_arrive == true) {
       print_serial();
       packet.is_arrive = false;
@@ -271,9 +277,9 @@ void send_data(String message, int counter, int id) {
 // ####################################################################################################
 
 void send_mode(String message) {
-  Serial.println("  Starting send ciro mode\r\n");
+  Serial.println("  Starting send ciro mode");
 
-  bool quit = false;
+  boolean quit = false;
   int counter = 0;
 
   while (quit != 1) {
@@ -293,7 +299,7 @@ void send_mode(String message) {
   }
 
   LoRa.idle();
-  Serial.println("  Exiting ciro mode");
+  Serial.println("  Exiting send ciro mode");
 }
 
 // ####################################################################################################
@@ -301,7 +307,7 @@ void send_mode(String message) {
 void send_message_mode() {
   Serial.println("  Starting send message mode");
 
-  bool quit = false;
+  boolean quit = false;
   int counter = 0;
   String message;
 
@@ -328,7 +334,7 @@ void send_message_mode() {
 void bidirectional_mode() {
   Serial.println("  Starting bidirectional mode");
 
-  bool quit = false;
+  boolean quit = false;
   int counter = 0;
 
   LoRa.onReceive(read_packet);
@@ -371,9 +377,9 @@ void bidirectional_mode() {
 // ####################################################################################################
 
 void bidirectional_message() {
-  Serial.println("bidirectional mode starting");
+  Serial.println("  Starting bidirectional mode");
 
-  bool quit = 1;
+  boolean quit = 1;
   String message;
 
   LoRa.onReceive(read_packet);
@@ -387,16 +393,10 @@ void bidirectional_message() {
   }
 
   LoRa.idle();
-  Serial.println("bidirectional mode exiting");
+  Serial.println("  Exiting bidirectional mode");
 }
 
-// ####################################################################################################
 
-void serialFlush() {
-  while (Serial.available() > 0) {
-    Serial.read();
-  }
-}
 
 // ####################################################################################################
 // ####################################################################################################
@@ -465,7 +465,7 @@ void loop() {
 
   switch (slt) {
     case 1 + 48:
-      recive_mode();
+      receive_mode();
       break;
     case 2 + 48:
       send_mode(defMessage);
