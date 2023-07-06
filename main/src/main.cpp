@@ -29,6 +29,8 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 #define defSignBand 125E3   // larghezza di banda (7.8 10.4 15.6 20.8 31.25 41.7 62.5 125 250 500 + E3)
 #define defCodRate 8        // velocità di codifica (8 banane)
 
+#define defMessage "ciro"
+
 int slt;
 // srand(time(NULL)); bo non gli piace
 int id = rand() % 9999;
@@ -466,7 +468,7 @@ void loop() {
       recive_mode();
       break;
     case 2 + 48:
-      send_mode("ciro");
+      send_mode(defMessage);
       break;
     case 3 + 48:
       bidirectional_mode();
