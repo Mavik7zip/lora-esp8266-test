@@ -6,19 +6,28 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
-#define SCREEN_WIDTH 128 // OLED display width, in pixels
-#define SCREEN_HEIGHT 64 // OLED display height, in pixels
 
 // Dichiarazione per il display SSD1306 connesso all'I2C
-#define OLED_RESET -1 // Pn di reset (-1 se condivide lo stesso dell'arduino)
+#define SCREEN_WIDTH 128 // larghezza in pixel
+#define SCREEN_HEIGHT 64 // altezza in pixel
+#define OLED_RESET    -1 // (pin di reset, -1 è lo stesso pin di arduino)
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
-// pin del modulo lora
+
+// Pin del modulo lora
 #define NSS 16
 #define RST 0
 #define DIO0 15
 
+// Intervallo tra due pacchetti
 #define send_delay 2000
+
+// Valori radio di dafault
+#define defTxPower 18       // potenza Tx (0-18 dBm, potrebbe variare con altri moduli)
+#define defRxGain 0         // guadagno Rx (0-6 dB, con 0 è automatico)
+#define defSpredFactor 12   // fattore di diffusione (12 mele)
+#define defSignBand 125E3   // larghezza di banda (7.8 10.4 15.6 20.8 31.25 41.7 62.5 125 250 500 + E3)
+#define defCodRate 8        // velocità di codifica (8 banane)
 
 int slt;
 // srand(time(NULL)); bo non gli piace
@@ -55,7 +64,7 @@ void print_display() {
 // ####################################################################################################
 
 void print_serial() {
-  Serial.println("    text: " + String(packet.text));
+  Serial.println("\r\n    text: " + String(packet.text));
   Serial.println("  No pkt: " + String(packet.counter));
   Serial.println("    ping: " + String(packet.ping));
   Serial.println("    rssi: " + String(packet.rssi));
@@ -68,16 +77,16 @@ String read_string() {
   char read;
   String string;
 
-  while (read != '\n'){
+  while (read != '\n') {
 
     while (!Serial.available());
     read = Serial.read();
-    
-    if (read != '\n'){
+
+    if (read != '\n') {
       string += read;
     }
   }
-  
+
   return string;
 }
 
@@ -124,6 +133,7 @@ void read_packet(int packet_size) {
 int menu() {
   while (!Serial);
 
+  Serial.println("----------------------");
   Serial.println("receiver mode      [1]");
   Serial.println("sender mode        [2]");
   Serial.println("bidirectional mode [3]");
@@ -132,6 +142,8 @@ int menu() {
   Serial.println("settings menu      [6]");
   Serial.println("                      ");
   Serial.println("quit               [0]");
+  Serial.println("----------------------");
+
 
   while (!Serial.available());
 
@@ -141,12 +153,14 @@ int menu() {
 int settings_menu() {
   while (!Serial);
 
+  Serial.println("----------------------");
   Serial.println("set gain           [1]");
   Serial.println("set bandwidth      [2]");
   Serial.println("set txpower        [3]");
   Serial.println("rssi radio         [4]");
-  Serial.println("                      ");
+  Serial.println();
   Serial.println("quit               [0]");
+  Serial.println("----------------------");
 
   while (!Serial.available());
   return (int)Serial.read();
@@ -155,7 +169,9 @@ int settings_menu() {
 // ####################################################################################################
 
 void set_gain() {
-  Serial.println("value: 0-6 (0 => automatico)");
+  Serial.println("\r\nvalue: 0-6 (0 => automatico)");
+
+  delay(1000);
 
   while (!Serial.available());
   int gain = ((int)Serial.read() - 48);
@@ -173,7 +189,9 @@ void set_gain() {
 // ####################################################################################################
 
 void set_bandwidth() {
-  Serial.println("(7.8 10.4 15.6 20.8 31.25 41.7 62.5 125 250 500)(31.25 => default)");
+  Serial.println("(7.8 10.4 15.6 20.8 31.25 41.7 62.5 125 250 500)(125 => default)");
+
+  delay(1000);
 
   while (!Serial.available());
   double bandwidth = (Serial.readString()).toDouble(); //fa cacare il read string
@@ -189,6 +207,8 @@ void set_bandwidth() {
 void set_txpower() {
   Serial.println("(2-20)(18 => default)");
 
+  delay(1000);
+
   while (!Serial.available());
   int dbm = Serial.parseInt();
 
@@ -201,9 +221,7 @@ void set_txpower() {
 // ####################################################################################################
 
 void rssi_radio() {
-  Serial.println("rssi radio: ");
-
-  Serial.println(LoRa.rssi());
+  Serial.println("rssi radio: " + String(LoRa.rssi()) + "\r\n");
 }
 
 // ####################################################################################################
@@ -218,6 +236,7 @@ void recive_mode() {
 
   while (quit != 0) {
     quit = Serial.read(); // due mezzi fake
+
     if (packet.is_arrive == true) {
       print_serial();
       packet.is_arrive = false;
@@ -272,7 +291,6 @@ void send_message_mode() {
   String message;
 
   while (quit != 0) {
-
     message = read_string();
 
     send_data(message, counter, 0);
@@ -322,33 +340,32 @@ void bidirectional_mode() {
 
 // ####################################################################################################
 // ####################################################################################################
-
 void setup() {
   delay(1000);
+
+  while (!Serial); // aspetto la seriale
 
   Serial.begin(115200);
   Serial.setTimeout(3000);
 
-  Serial.println();
-  Serial.println();
-  Serial.println("LoRa Main code");
+  Serial.println("\r\n\r\nLoRa Main code");
 
   // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
   if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { //Address 0x3D for 128x64
     Serial.println("SSD1306 starting fail");
     // while (1); //uncommentare perchè se non va almeno posso usarre la seriale
-  } else Serial.println("SSD1306 started");
+  } else {
+    Serial.println("SSD1306 started");
 
-  // scrivo le prime cose cose sul display
-  //display.display();
-  display.clearDisplay();
-  display.setTextSize(1);
-  display.setTextColor(WHITE);
-  display.setCursor(19, 26);
-  display.print("LoRa Main");
-  display.display();
-
-  while (!Serial); // aspetto la seriale
+    // scrivo le prime cose cose sul display
+    //display.display();
+    display.clearDisplay();
+    display.setTextSize(1);
+    display.setTextColor(WHITE);
+    display.setCursor(19, 26);
+    display.print("LoRa Main");
+    display.display();
+  }
 
   // starto l'antenna a 433 MHz
   LoRa.setPins(NSS, RST, DIO0);
@@ -360,15 +377,24 @@ void setup() {
     display.print("starting LoRa failed");
     display.display();
 
-    // while (1); test
+    while (1);
+  } else {
+    Serial.println("LoRa started succesfully");
+
+    display.clearDisplay();
+    display.setCursor(0, 0);
+    display.print("LoRa started succesfully");
+    display.display();
   }
 
-  LoRa.setTxPower(18);              // setto la potenza d'uscita (18 dBm)
-  // LoRa.setGain(6);                  // setto il guadagno in ingresso (0-6 dB con 0 è automatico)
-  LoRa.setSpreadingFactor(12);      // setto il fattore di diffusione (12 mele)
-  LoRa.setSignalBandwidth(125E3); // setto la larghezza di banda (7.8 10.4 15.6 20.8 31.25 41.7 62.5 125 250 500)
-  LoRa.setCodingRate4(8);           // setto la velocità di codifica (8)
+  //setto le impostazioni base della radio
+  LoRa.setTxPower(defTxPower);              // setto la potenza d'uscita (18 dBm)
+  LoRa.setGain(defRxGain);                  // setto il guadagno in ingresso (0-6 dB con 0 è automatico)
+  LoRa.setSpreadingFactor(defSpredFactor);  // setto il fattore di diffusione (12 mele)
+  LoRa.setSignalBandwidth(defSignBand);     // setto la larghezza di banda (7.8 10.4 15.6 20.8 31.25 41.7 62.5 125 250 500)
+  LoRa.setCodingRate4(defCodRate);          // setto la velocità di codifica (8)
 }
+
 
 // ####################################################################################################
 
