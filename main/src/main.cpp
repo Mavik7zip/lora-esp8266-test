@@ -77,7 +77,7 @@ String read_string() {
   char read;
   String string;
 
-  while (read != '\n') {
+  do {
 
     while (!Serial.available());
     read = Serial.read();
@@ -85,7 +85,7 @@ String read_string() {
     if (read != '\n') {
       string += read;
     }
-  }
+  }while (read != '\n');
 
   return string;
 }
@@ -318,6 +318,7 @@ void bidirectional_mode() {
     if (packet.is_arrive == true) {
       if (packet.id != id) {
         send_data("bidirectional test", packet.counter, packet.id);
+        LoRa.receive();
         packet.is_arrive = false;
       } else {
         print_serial();
@@ -326,6 +327,7 @@ void bidirectional_mode() {
 
     if (counter % 4 == 0) {
       send_data("bidirectional test", counter / 4, id);
+      LoRa.receive();
       Serial.println("sending No" + String(counter / 4));
     }
 
