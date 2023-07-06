@@ -88,9 +88,9 @@ String read_string() {
   String string;
 
   do {
-
     while (!Serial.available());
     read = Serial.read();
+    Serial.print(read);
 
     if (read != '\n') {
       string += read;
@@ -377,7 +377,7 @@ void bidirectional_mode() {
 // ####################################################################################################
 
 void bidirectional_message() {
-  Serial.println("  Starting bidirectional mode");
+  Serial.println("  Starting bidirectional message mode");
 
   boolean quit = 1;
   String message;
@@ -388,15 +388,14 @@ void bidirectional_message() {
   while (quit != 0) {
 
     message = read_string();
+
     send_data(message, 0, id);
     LoRa.receive();
   }
 
   LoRa.idle();
-  Serial.println("  Exiting bidirectional mode");
+  Serial.println("  Exiting bidirectional message mode");
 }
-
-
 
 // ####################################################################################################
 // ####################################################################################################
