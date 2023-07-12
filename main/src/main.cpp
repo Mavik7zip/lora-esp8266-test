@@ -29,10 +29,10 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 #define defSignBand 125E3   // larghezza di banda (7.8 10.4 15.6 20.8 31.25 41.7 62.5 125 250 500 + E3)
 #define defCodRate 8        // velocità di codifica (8 banane)
 
-#define defMessage "ciro"
+#define defMessage "MESSAGE"
 
 int slt;
-// srand(time(NULL)); bo non gli piace
+// srand(time(NULL));
 int id = rand() % 9999;
 struct {
   String text;
@@ -59,7 +59,7 @@ void serialFlush() {
 // ####################################################################################################
 
 void print_display() {
-  display.clearDisplay(); // odio i display
+  display.clearDisplay();
   display.setTextSize(2);
   display.setTextColor(WHITE);
   display.setCursor(0, 0);
@@ -403,7 +403,7 @@ void bidirectional_message() {
 void setup() {
   delay(1000);
 
-  while (!Serial); // aspetto la seriale
+  while (!Serial);
 
   Serial.begin(115200);
   Serial.setTimeout(3000);
@@ -414,7 +414,6 @@ void setup() {
   // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
   if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { //Address 0x3D for 128x64
     Serial.println("SSD1306 starting fail");
-    // while (1); //uncommentare perchè se non va almeno posso usarre la seriale
   } else {
     Serial.println("SSD1306 started");
 
