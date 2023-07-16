@@ -336,6 +336,7 @@ void bidirectional_mode() {
 
   boolean quit = false;
   int counter = 0;
+  int last_count = 0;
 
   LoRa.onReceive(read_packet);
   LoRa.receive();
@@ -345,7 +346,10 @@ void bidirectional_mode() {
     if (packet.is_arrive == true) {
       if (packet.id == id) {
         if (counter % 4 == 0) {
-          print_serial();
+          if(packet.counter != last_count){
+            print_serial();
+            last_count = packet.counter;
+          }
         }
       } else {
         send_data("bidirectional test", packet.counter, packet.id);
@@ -354,15 +358,15 @@ void bidirectional_mode() {
       }
     }
 
-    if (counter % 4 == 0) {
-      send_data("bidirectional test", counter / 4, id);
+    if (counter % 12 == 0) {
+      send_data("bidirectional test", counter / 12, id);
       LoRa.receive();
       Serial.println("sending n°" + String(counter / 4));
     }
 
     counter++;
 
-    delay(send_delay / 2);
+    delay(send_delay / 4);
 
     if (Serial.available() > 0) {
       if (Serial.read() == '0') quit = true;
