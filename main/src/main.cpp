@@ -232,6 +232,28 @@ void set_txpower() {
 
 // ####################################################################################################
 
+void set_txpower_amplifier() {
+  float watt_request;
+
+  Serial.println("(21-37)(37 => default)");
+
+  delay(1000);
+
+  while (!Serial.available());
+  int dbm = Serial.parseInt();
+
+  watt_request = pow(10,(dbm/10))/1000;
+  watt_request = watt_request/80;
+  dbm = 10*log10(watt_request)+30;
+
+  LoRa.setTxPower(dbm);
+  Serial.println("txpower = " + String(dbm));
+
+  Serial.println();
+}
+
+// ####################################################################################################
+
 void rssi_radio() {
   Serial.println("rssi radio: " + String(LoRa.rssi()) + "\r\n");
 }
