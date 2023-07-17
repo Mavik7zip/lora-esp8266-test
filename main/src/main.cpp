@@ -374,14 +374,14 @@ void bidirectional_mode() {
           }
         }
       } else {
-        send_data("bidirectional test", packet.counter, packet.id);
+        send_data(packet.text, packet.counter, packet.id);
         LoRa.receive();
         packet.is_arrive = false;
       }
     }
 
     if (counter % 12 == 0) {
-      send_data("bidirectional test", counter / 12, id);
+      send_data("kk", counter / 12, id);
       LoRa.receive();
       Serial.println("sending n°" + String(counter / 4));
     }
