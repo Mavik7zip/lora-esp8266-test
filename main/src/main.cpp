@@ -383,7 +383,7 @@ void bidirectional_mode() {
     if (counter % 12 == 0) {
       send_data("kk", counter / 12, id);
       LoRa.receive();
-      Serial.println("sending n°" + String(counter / 4));
+      Serial.println("sending n°" + String(counter / 12));
     }
 
     counter++;
