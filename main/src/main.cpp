@@ -170,7 +170,8 @@ int settings_menu() {
   Serial.println("set bandwidth      [2]");
   Serial.println("set txpower        [3]");
   Serial.println("rssi radio         [4]");
-  Serial.println();
+  Serial.println("set txpower+amp    [5]");
+  Serial.println("                      ");
   Serial.println("quit               [0]");
   Serial.println("----------------------");
 
@@ -484,9 +485,9 @@ void setup() {
 // ####################################################################################################
 
 void loop() {
-  slt = menu();
   int settings_slt = 99;
-
+  
+  slt = menu();
   switch (slt) {
     case 1 + 48:
       receive_mode();
@@ -522,6 +523,9 @@ void loop() {
             break;
           case 4 + 48:
             rssi_radio();
+            break;
+          case 5 + 48:
+            set_txpower_amplifier();
             break;
 
           default:
