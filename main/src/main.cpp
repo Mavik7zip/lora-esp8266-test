@@ -530,7 +530,8 @@ void loop() {
           default:
             break;
         }
-      } break;
+      } 
+    break;
 
     default:
       break;
