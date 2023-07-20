@@ -464,7 +464,6 @@ void setup() {
     display.print("starting LoRa failed");
     display.display();
 
-    while (1);
   } else {
     Serial.println("LoRa started succesfully");
 
