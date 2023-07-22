@@ -26,10 +26,11 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 #define defTxPower 18       // potenza Tx (0-18 dBm, potrebbe variare con altri moduli)
 #define defRxGain 0         // guadagno Rx (0-6 dB, con 0 è automatico)
 #define defSpredFactor 12   // fattore di diffusione (12 mele)
-#define defSignBand 125E3   // larghezza di banda (7.8 10.4 15.6 20.8 31.25 41.7 62.5 125 250 500 + E3)
+#define defSignBand 250E3   // larghezza di banda (7.8 10.4 15.6 20.8 31.25 41.7 62.5 125 250 500 + E3)
 #define defCodRate 8        // velocità di codifica (8 banane)
 
 #define defMessage "MESSAGE"
+#define PrintDisplaySignal true
 
 int slt;
 // srand(time(NULL));
@@ -134,8 +135,11 @@ void read_packet(int packet_size) {
   packet.snr = LoRa.packetSnr();
 
   packet.is_arrive = true;
+  if (PrintDisplaySignal){
+    print_display();
+  }
 
-  if(slt == 4){
+  if(slt == 4){   // perche serve l'interrupt (bidirectional message)
     Serial.println(packet.text);
   }
 }
