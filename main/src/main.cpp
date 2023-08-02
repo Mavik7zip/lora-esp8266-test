@@ -29,7 +29,7 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 #define defSignBand 250E3   // larghezza di banda (7.8 10.4 15.6 20.8 31.25 41.7 62.5 125 250 500 + E3)
 #define defCodRate 8        // velocità di codifica (8 banane)
 
-#define defMessage "MESSAGE"
+#define defMessage "MSG"
 #define PrintDisplaySignal true
 
 int slt;
