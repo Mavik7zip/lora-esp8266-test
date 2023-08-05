@@ -140,7 +140,7 @@ void read_packet(int packet_size) {
   //   print_display();
   // }
 
-  if(slt == 4){   // perche serve l'interrupt (bidirectional message)
+  if(slt == 4 + 48){   // perche serve l'interrupt (bidirectional message)
     Serial.println(packet.text);
   }
 }
@@ -536,7 +536,7 @@ void loop() {
             break;
         }
       } 
-    break;
+      break;
 
     default:
       break;
