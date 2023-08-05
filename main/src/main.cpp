@@ -135,9 +135,10 @@ void read_packet(int packet_size) {
   packet.snr = LoRa.packetSnr();
 
   packet.is_arrive = true;
-  if (PrintDisplaySignal){
-    print_display();
-  }
+  
+  // if (PrintDisplaySignal){
+  //   print_display();
+  // }
 
   if(slt == 4){   // perche serve l'interrupt (bidirectional message)
     Serial.println(packet.text);
