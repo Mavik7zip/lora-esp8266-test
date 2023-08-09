@@ -5,6 +5,7 @@
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
+#include <ESP8266WiFi.h>
 
 
 // Dichiarazione per il display SSD1306 connesso all'I2C
@@ -44,6 +45,10 @@ struct {
   int id;
   bool is_arrive;
 } packet;
+
+// IPAddress local_IP(192,168,104,1); per AP
+// IPAddress gateway(192,168,104,1);
+// IPAddress subnet(255,255,255,0);
 
 // ####################################################################################################
 
@@ -484,6 +489,12 @@ void setup() {
   LoRa.setSpreadingFactor(defSpredFactor);  // setto il fattore di diffusione (12 mele)
   LoRa.setSignalBandwidth(defSignBand);     // setto la larghezza di banda (7.8 10.4 15.6 20.8 31.25 41.7 62.5 125 250 500)
   LoRa.setCodingRate4(defCodRate);          // setto la velocità di codifica (8)
+
+  Serial.begin(115200);
+  Serial.println();
+
+  // WiFi.softAPConfig(local_IP, gateway, subnet); per ap
+  // Serial.println(WiFi.softAP("Lora_AP") ? "Ready" : "Failed!");
 }
 
 // ####################################################################################################
