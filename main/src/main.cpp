@@ -451,6 +451,7 @@ void bees() {
   doc["text"] = packet.text;
   doc["ping"] = packet.ping;
   doc["counter"] = packet.counter;
+  doc["is_arrive"] = packet.is_arrive;
   serializeJson(doc, JSONmessageBuffer);
   http_rest_server.send(200, "application/json", JSONmessageBuffer);
 }
