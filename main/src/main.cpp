@@ -442,7 +442,6 @@ void bidirectional_message() {
 // ####################################################################################################
 
 void bees() {
-  Serial.println("Gennaro");
   DynamicJsonDocument doc(200);
   char JSONmessageBuffer[200];
 
