@@ -1,11 +1,12 @@
 //codice main
-
 #include <SPI.h>
 #include <LoRa.h>
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include <ESP8266WiFi.h>
+#include <ESP8266WebServer.h>
+#include <ArduinoJson.h>
 
 
 // Dichiarazione per il display SSD1306 connesso all'I2C
@@ -33,7 +34,13 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 #define defMessage "MSG"
 #define PrintDisplaySignal true
 
+// wifi data
+#define SSID "SSID"
+#define PWD "PASSWORD"
+
+
 int slt;
+int settings_slt;
 // srand(time(NULL));
 int id = rand() % 9999;
 struct {
@@ -46,9 +53,7 @@ struct {
   bool is_arrive;
 } packet;
 
-// IPAddress local_IP(192,168,104,1); per AP
-// IPAddress gateway(192,168,104,1);
-// IPAddress subnet(255,255,255,0);
+ESP8266WebServer http_rest_server(80);
 
 // ####################################################################################################
 
@@ -435,10 +440,34 @@ void bidirectional_message() {
 }
 
 // ####################################################################################################
+
+void bees() {
+  Serial.println("Gennaro");
+  DynamicJsonDocument doc(200);
+  char JSONmessageBuffer[200];
+
+  doc["rssi"] = packet.rssi;
+  doc["snr"] = packet.snr;
+  doc["text"] = packet.text;
+  doc["ping"] = packet.ping;
+  doc["counter"] = packet.counter;
+  serializeJson(doc, JSONmessageBuffer);
+  http_rest_server.send(200, "application/json", JSONmessageBuffer);
+}
+
+
+// ####################################################################################################
+
+void config_rest_server_routing() {
+  http_rest_server.on("/", HTTP_GET, bees);
+}
+
+// ####################################################################################################
 // ####################################################################################################
 
 void setup() {
-  delay(1000);
+
+  int Ntry = 0;
 
   while (!Serial);
 
@@ -483,25 +512,35 @@ void setup() {
     display.display();
   }
 
-  //setto le impostazioni base della radio
+  // setto le impostazioni base della radio
   LoRa.setTxPower(defTxPower);              // setto la potenza d'uscita (18 dBm)
   LoRa.setGain(defRxGain);                  // setto il guadagno in ingresso (0-6 dB con 0 è automatico)
   LoRa.setSpreadingFactor(defSpredFactor);  // setto il fattore di diffusione (12 mele)
   LoRa.setSignalBandwidth(defSignBand);     // setto la larghezza di banda (7.8 10.4 15.6 20.8 31.25 41.7 62.5 125 250 500)
   LoRa.setCodingRate4(defCodRate);          // setto la velocità di codifica (8)
 
-  Serial.begin(115200);
-  Serial.println();
+  // wifi connection
+  WiFi.begin(SSID, PWD);
+  delay(500);
+  while(WiFi.status() != WL_CONNECTED && Ntry < 32){
+    delay(500);
+    Serial.print(".");
+    Ntry++;
+  }
+  if(WiFi.status() == WL_CONNECTED){
+    Serial.println("connected");
+  } else {
+    Serial.println("wifi fail");
+  }
 
-  // WiFi.softAPConfig(local_IP, gateway, subnet); per ap
-  // Serial.println(WiFi.softAP("Lora_AP") ? "Ready" : "Failed!");
+  // starto le apine
+  // http_rest_server.begin();
+  // config_rest_server_routing();
 }
 
 // ####################################################################################################
 
 void loop() {
-  int settings_slt = 99;
-  
   slt = menu();
   switch (slt) {
     case 1 + 48:
@@ -548,7 +587,6 @@ void loop() {
         }
       } 
       break;
-
     default:
       break;
   }
