@@ -35,8 +35,8 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 #define PrintDisplaySignal true
 
 // wifi data
-#define SSID "SSID"
-#define PWD "PASSWORD"
+#define SSID "FASTGATE_2.4G"
+#define PWD "Af4339XcbrSn"
 
 
 int slt;
@@ -534,60 +534,62 @@ void setup() {
   }
 
   // starto le apine
-  // http_rest_server.begin();
-  // config_rest_server_routing();
+  http_rest_server.begin();
+  config_rest_server_routing();
 }
 
 // ####################################################################################################
 
 void loop() {
-  slt = menu();
-  switch (slt) {
-    case 1 + 48:
-      receive_mode();
-      break;
-    case 2 + 48:
-      send_mode(defMessage);
-      break;
-    case 3 + 48:
-      bidirectional_mode();
-      break;
-    case 4 + 48:
-      bidirectional_message();
-      break;
-    case 5 + 48:
-      send_message_mode();
-      break;
-    case 6 + 48:
-      while (settings_slt != 48) {
-        settings_slt = settings_menu();
+  http_rest_server.handleClient();
+  // slt = menu();
+  
+  // switch (slt) {
+  //   case 1 + 48:
+  //     receive_mode();
+  //     break;
+  //   case 2 + 48:
+  //     send_mode(defMessage);
+  //     break;
+  //   case 3 + 48:
+  //     bidirectional_mode();
+  //     break;
+  //   case 4 + 48:
+  //     bidirectional_message();
+  //     break;
+  //   case 5 + 48:
+  //     send_message_mode();
+  //     break;
+  //   case 6 + 48:
+  //     while (settings_slt != 48) {
+  //       settings_slt = settings_menu();
 
-        switch (settings_slt) {
-          case 0:
-            slt = 0;
-            break;
-          case 1 + 48:
-            set_gain();
-            break;
-          case 2 + 48:
-            set_bandwidth();
-            break;
-          case 3 + 48:
-            set_txpower();
-            break;
-          case 4 + 48:
-            rssi_radio();
-            break;
-          case 5 + 48:
-            set_txpower_amplifier();
-            break;
+  //       switch (settings_slt) {
+  //         case 0:
+  //           slt = 0;
+  //           break;
+  //         case 1 + 48:
+  //           set_gain();
+  //           break;
+  //         case 2 + 48:
+  //           set_bandwidth();
+  //           break;
+  //         case 3 + 48:
+  //           set_txpower();
+  //           break;
+  //         case 4 + 48:
+  //           rssi_radio();
+  //           break;
+  //         case 5 + 48:
+  //           set_txpower_amplifier();
+  //           break;
 
-          default:
-            break;
-        }
-      } 
-      break;
-    default:
-      break;
-  }
+  //         default:
+  //           break;
+  //       }
+  //     } 
+  //     break;
+  //   default:
+  //     break;
+  // }
 }
