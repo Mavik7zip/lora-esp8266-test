@@ -35,8 +35,10 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 #define PrintDisplaySignal true
 
 // wifi data
-#define SSID "FASTGATE_2.4G"
-#define PWD "Af4339XcbrSn"
+// #define SSID "FASTGATE_2.4G"
+// #define PWD "Af4339XcbrSn"
+#define SSID "Mi 10T"
+#define PWD "cirociro"
 
 
 int slt;

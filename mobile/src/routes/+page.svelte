@@ -2,13 +2,12 @@
     import { Bar } from 'svelte-chartjs';
 
     export const data = {
-    labels: [1, 2, 3, 4, 5, 6],
-    datasets: [
-      {
-        data: [12, 19, 3, 5, 2, 3],
-      },
-    ],
-  };
+      labels: [1, 2, 3, 4, 5, 6,1, 2, 3, 4, 5, 6,1, 2, 3, 4],
+      datasets: [{
+          data: [12, 19, 3, 5, 2, 3, 12, 19, 3, 5, 2, 3, 12, 19, 3, 5,],
+        },
+      ],
+    };
   
     import {
       Chart,
