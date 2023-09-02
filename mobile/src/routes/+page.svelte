@@ -26,12 +26,24 @@
 
     let packet;
     let rssi=[];
+    let snr=[];
+
 
     setInterval(async function() {
       const res = await fetch("http://192.168.23.158");
       packet = await res.json();
+
       rssi.push(packet.rssi);
+      if(rssi.length > 16){
+        rssi.shift();
+      }
       console.log(rssi);
+
+      snr.push(packet.snr);
+      if(snr.length > 16){
+        snr.shift();
+      }
+      console.log(snr);
     }, 5000); 
 
 
