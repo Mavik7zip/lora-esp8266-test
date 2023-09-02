@@ -1,13 +1,7 @@
 <script>
     import { Bar } from 'svelte-chartjs';
+    import { onMount } from 'svelte';
 
-    export const data = {
-      labels: [1, 2, 3, 4, 5, 6,1, 2, 3, 4, 5, 6,1, 2, 3, 4],
-      datasets: [{
-          data: [12, 19, 3, 5, 2, 3, 12, 19, 3, 5, 2, 3, 12, 19, 3, 5,],
-        },
-      ],
-    };
   
     import {
       Chart,
@@ -15,6 +9,7 @@
       Tooltip,
       Legend,
       BarElement,
+      LineElement,
       CategoryScale,
       LinearScale,
     } from 'chart.js';
@@ -24,9 +19,32 @@
       Tooltip,
       Legend,
       BarElement,
+      LineElement,
       CategoryScale,
       LinearScale
     );
+
+    let packet;
+    let rssi=[];
+
+    setInterval(async function() {
+      const res = await fetch("http://192.168.23.158");
+      packet = await res.json();
+      rssi.push(packet.rssi);
+      console.log(rssi);
+    }, 5000); 
+
+
+    export const data = {
+      labels: [1, 2, 3, 4, 5, 6,1, 2, 3, 4, 5, 6,1, 2, 3, 4],
+      datasets: [{
+          data: [12, 19, 3, 5, 2, 3, 12, 19, 3, 5, 2, 3, 12, 19, 3, 5,],
+        },
+      ],
+    };
+
+    
+
   </script>
   
   <main>

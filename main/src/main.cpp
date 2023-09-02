@@ -487,7 +487,7 @@ void setup() {
 
     // scrivo le prime cose cose sul display
     //display.display();
-    display.clearDisplay();
+    display.clearDisplay(); // questo non esce mai
     display.setTextSize(1);
     display.setTextColor(WHITE);
     display.setCursor(19, 26);
@@ -531,11 +531,22 @@ void setup() {
   }
   if(WiFi.status() == WL_CONNECTED){
     Serial.println("connected");
+
+    display.clearDisplay();
+    display.setCursor(0, 0);
+    display.print("wifi connected");
+    display.display();
   } else {
     Serial.println("wifi fail");
+
+    display.clearDisplay();
+    display.setCursor(0, 0);
+    display.print("wifi fail");
+    display.display();
   }
 
   // starto le apine
+  http_rest_server.enableCORS(true);
   http_rest_server.begin();
   config_rest_server_routing();
 }
