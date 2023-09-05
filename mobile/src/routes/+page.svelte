@@ -27,35 +27,40 @@
     let packet;
     let rssi=[];
     let snr=[];
+    let counter = 0;
+    let timestamp=[];
+    let chartRef
 
 
     setInterval(async function() {
-      const res = await fetch("http://192.168.23.158");
+      const res = await fetch("http://192.168.100.166");
       packet = await res.json();
 
       rssi.push(packet.rssi);
       if(rssi.length > 16){
         rssi.shift();
       }
-      console.log(rssi);
-
       snr.push(packet.snr);
       if(snr.length > 16){
         snr.shift();
       }
-      console.log(snr);
+
+      timestamp.push(counter);
+      counter++;
+
+      if(chartRef != null){
+        chartRef.update();
+      }
+      
     }, 5000); 
 
-
     export const data = {
-      labels: [1, 2, 3, 4, 5, 6,1, 2, 3, 4, 5, 6,1, 2, 3, 4],
+      labels: timestamp,
       datasets: [{
-          data: [12, 19, 3, 5, 2, 3, 12, 19, 3, 5, 2, 3, 12, 19, 3, 5,],
+          data: snr,
         },
       ],
     };
-
-    
 
   </script>
   
@@ -79,7 +84,7 @@
           </div>
         </div>
         <div class="chart-square">
-          <Bar {data} options={{ responsive: true }} />
+          <Bar {data}bind:chart={chartRef} options={{ responsive: true }} />
         </div>
       </div>
       <div class="text-box">
