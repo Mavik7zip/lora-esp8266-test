@@ -29,19 +29,21 @@
     let snr=[];
     let counter = 0;
     let timestamp=[];
-    let chartRef
+    let chartRef;
+    let mod;
+
+    const ip = "http://192.168.100.166";
 
 
     setInterval(async function() {
-      const res = await fetch("http://192.168.100.166");
+      const res = await fetch(ip.concat("/get"));
       packet = await res.json();
 
       rssi.push(packet.rssi);
+      snr.push(packet.snr);
+
       if(rssi.length > 16){
         rssi.shift();
-      }
-      snr.push(packet.snr);
-      if(snr.length > 16){
         snr.shift();
       }
 
@@ -62,6 +64,11 @@
       ],
     };
 
+  async function post(){
+    const res = await fetch(ip.concat("/post"), {method: "post",body: JSON.stringify({"mod": mod})});
+
+  }
+
   </script>
   
   <main>
@@ -75,12 +82,15 @@
             </div>
           </div>
           <div class="mod-box">
-            <select name="mod" id="mod">
-              <option value="1">reciver</option>
-              <option value="2">sender</option>
-              <option value="3">bidirectional</option>
-              <option value="4">bidirec-message</option>
-            </select>
+            <form on:submit|preventDefault={post}>
+              <select name="mod" id="mod" bind:value={mod}>
+                <option value="1">reciver</option>
+                <option value="2">sender</option>
+                <option value="3">bidirectional</option>
+                <option value="4">bidirec-message</option>
+              </select>
+              <input type="submit" >
+            </form>
           </div>
         </div>
         <div class="chart-square">

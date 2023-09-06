@@ -6,6 +6,7 @@
 #include <Adafruit_SSD1306.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
+// #include <FreeRTOS.h>
 #include <ArduinoJson.h>
 
 
@@ -35,12 +36,12 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 #define PrintDisplaySignal true
 
 // wifi data
-#define SSID ""
-#define PWD ""
+#define SSID "FASTGATE_2.4G"
+#define PWD "Af4339XcbrSn"
 
 
 
-int slt;
+int slt = 48;
 int settings_slt;
 // srand(time(NULL));
 int id = rand() % 9999;
@@ -66,6 +67,17 @@ void serialFlush() {
   while (Serial.available() > 0) {
     Serial.read();
   }
+}
+
+// ####################################################################################################
+
+void print_mod(String mod){
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
+  display.setCursor(0, 0);
+  display.print(mod);
+  display.display();
 }
 
 // ####################################################################################################
@@ -197,13 +209,11 @@ int settings_menu() {
 
 // ####################################################################################################
 
-void set_gain() {
-  Serial.println("\r\nvalue: 0-6 (0 => automatico)");
+void set_gain(int gain) {
+  // Serial.println("\r\nvalue: 0-6 (0 => automatico)");
 
-  delay(1000);
-
-  while (!Serial.available());
-  int gain = ((int)Serial.read() - 48);
+  // while (!Serial.available());
+  // int gain = ((int)Serial.read() - 48);
 
   if (gain <= 6 && gain >= 0) {
     LoRa.setGain(gain);
@@ -217,13 +227,8 @@ void set_gain() {
 
 // ####################################################################################################
 
-void set_bandwidth() {
-  Serial.println("(7.8 10.4 15.6 20.8 31.25 41.7 62.5 125 250 500)(125 => default)");
-
-  delay(1000);
-
-  while (!Serial.available());
-  double bandwidth = (Serial.readString()).toDouble(); //fa cacare il read string
+void set_bandwidth(double bandwidth) {
+  // Serial.println("(7.8 10.4 15.6 20.8 31.25 41.7 62.5 125 250 500)(125 => default)");
 
   LoRa.setSignalBandwidth(bandwidth * 1000);
   Serial.println("bandwidth = " + String(bandwidth));
@@ -233,13 +238,8 @@ void set_bandwidth() {
 
 // ####################################################################################################
 
-void set_txpower() {
-  Serial.println("(2-20)(18 => default)");
-
-  delay(1000);
-
-  while (!Serial.available());
-  int dbm = Serial.parseInt();
+void set_txpower(int dbm) {
+  // Serial.println("(2-20)(18 => default)");
 
   LoRa.setTxPower(dbm);
   Serial.println("txpower = " + String(dbm));
@@ -249,25 +249,22 @@ void set_txpower() {
 
 // ####################################################################################################
 
-void set_txpower_amplifier() {
-  float watt_request;
+// void set_txpower_amplifier(int dbm) {    l'asciamola per ultima
+//   float watt_request;
 
-  Serial.println("(21-37)(37 => default)");
+//   Serial.println("(21-37)(37 => default)");
 
-  delay(1000);
+//   delay(1000);
 
-  while (!Serial.available());
-  int dbm = Serial.parseInt();
+//   watt_request = pow(10,(dbm/10))/1000;
+//   watt_request = watt_request/80;
+//   dbm = 10*log10(watt_request)+30;
 
-  watt_request = pow(10,(dbm/10))/1000;
-  watt_request = watt_request/80;
-  dbm = 10*log10(watt_request)+30;
+//   LoRa.setTxPower(dbm);
+//   Serial.println("txpower = " + String(dbm));
 
-  LoRa.setTxPower(dbm);
-  Serial.println("txpower = " + String(dbm));
-
-  Serial.println();
-}
+//   Serial.println();
+// }
 
 // ####################################################################################################
 
@@ -279,6 +276,7 @@ void rssi_radio() {
 
 void receive_mode() {
   Serial.println("  Starting receive mode");
+  print_mod("receive mode");
 
   boolean quit = false;
 
@@ -297,6 +295,8 @@ void receive_mode() {
       if (Serial.read() == '0') quit = true;
       serialFlush();
     }
+
+    http_rest_server.handleClient();
   }
   
   LoRa.idle();
@@ -317,6 +317,7 @@ void send_data(String message, int counter, int id) {
 
 void send_mode(String message) {
   Serial.println("  Starting send ciro mode");
+  print_mod("send mode");
 
   boolean quit = false;
   int counter = 0;
@@ -335,6 +336,8 @@ void send_mode(String message) {
       if (Serial.read() == '0') quit = true;
       serialFlush();
     }
+
+    http_rest_server.handleClient();
   }
 
   LoRa.idle();
@@ -362,6 +365,8 @@ void send_message_mode() {
       if (Serial.read() == '0') quit = true;
       serialFlush();
     }
+
+    http_rest_server.handleClient();
   }
 
   LoRa.idle();
@@ -372,6 +377,7 @@ void send_message_mode() {
 
 void bidirectional_mode() {
   Serial.println("  Starting bidirectional mode");
+  print_mod("bidirec mode");
 
   boolean quit = false;
   int counter = 0;
@@ -411,16 +417,19 @@ void bidirectional_mode() {
       if (Serial.read() == '0') quit = true;
       serialFlush();
     }
+
+    http_rest_server.handleClient();
   }
 
   LoRa.idle();
   Serial.println("  Exiting bidirectional mode");
 }
 
-// ####################################################################################################
 
 void bidirectional_message() {
   Serial.println("  Starting bidirectional message mode");
+  print_mod("bidirec mess mode");
+
 
   boolean quit = 1;
   String message;
@@ -434,6 +443,8 @@ void bidirectional_message() {
 
     send_data(message, 0, id);
     LoRa.receive();
+
+    http_rest_server.handleClient();
   }
 
   LoRa.idle();
@@ -442,7 +453,29 @@ void bidirectional_message() {
 
 // ####################################################################################################
 
-void bees() {
+void select_mod(int mod){
+  switch (mod) {
+    case 1:
+      receive_mode();
+      break;
+    case 2:
+      send_mode(defMessage);
+      break;
+    case 3:
+      bidirectional_mode();
+      break;
+    case 4:
+      bidirectional_message();
+      break;
+    case 5:
+      send_message_mode();
+      break;
+  }
+}
+
+// ####################################################################################################
+
+void get_bees() {
   DynamicJsonDocument doc(200);
   char JSONmessageBuffer[200];
 
@@ -452,6 +485,8 @@ void bees() {
   doc["ping"] = packet.ping;
   doc["counter"] = packet.counter;
   doc["is_arrive"] = packet.is_arrive;
+  doc["mod"] = slt;
+
   serializeJson(doc, JSONmessageBuffer);
   http_rest_server.send(200, "application/json", JSONmessageBuffer);
 }
@@ -459,8 +494,35 @@ void bees() {
 
 // ####################################################################################################
 
+void post_bees(){
+  String postBody = http_rest_server.arg("plain");
+  DynamicJsonDocument doc(512);
+  DeserializationError error = deserializeJson(doc, postBody); // DeserializationError error = 
+
+  if(error == (DeserializationError::Ok)){
+    Serial.println("ho yea im working");
+  }else {
+    Serial.println("mamt");
+  }
+
+  // String bandwidth = doc["bandwidth"];
+  // String txpower = doc["txpower"];
+  // String gain = doc["gain"];
+  String mod = doc["mod"];
+
+
+  select_mod((mod.toInt()));
+
+  http_rest_server.send(512, "text/plain", "ok");
+}
+
+
+// ####################################################################################################
+
+
 void config_rest_server_routing() {
-  http_rest_server.on("/", HTTP_GET, bees);
+  http_rest_server.on("/get", HTTP_GET, get_bees);
+  http_rest_server.on("/post", HTTP_POST , post_bees);
 }
 
 // ####################################################################################################
