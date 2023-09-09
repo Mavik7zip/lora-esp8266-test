@@ -289,7 +289,7 @@ void receive_mode() {
       packet.is_arrive = false;
     }
 
-    delay(200);
+    delay(500);
 
     if (Serial.available() > 0) {
       if (Serial.read() == '0') quit = true;
@@ -476,8 +476,8 @@ void select_mod(int mod){
 // ####################################################################################################
 
 void get_bees() {
-  DynamicJsonDocument doc(200);
-  char JSONmessageBuffer[200];
+  DynamicJsonDocument doc(256);
+  char JSONmessageBuffer[256];
 
   doc["rssi"] = packet.rssi;
   doc["snr"] = packet.snr;
@@ -488,7 +488,7 @@ void get_bees() {
   doc["mod"] = slt;
 
   serializeJson(doc, JSONmessageBuffer);
-  http_rest_server.send(200, "application/json", JSONmessageBuffer);
+  http_rest_server.send(256, "application/json", JSONmessageBuffer);
 }
 
 
@@ -496,7 +496,7 @@ void get_bees() {
 
 void post_bees(){
   String postBody = http_rest_server.arg("plain");
-  DynamicJsonDocument doc(512);
+  DynamicJsonDocument doc(256);
   DeserializationError error = deserializeJson(doc, postBody); // DeserializationError error = 
 
   if(error == (DeserializationError::Ok)){
@@ -513,7 +513,7 @@ void post_bees(){
 
   select_mod((mod.toInt()));
 
-  http_rest_server.send(512, "text/plain", "ok");
+  http_rest_server.send(256, "text/plain", "ok");
 }
 
 
