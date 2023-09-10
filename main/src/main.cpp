@@ -6,7 +6,6 @@
 #include <Adafruit_SSD1306.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
-// #include <FreeRTOS.h>
 #include <ArduinoJson.h>
 
 
@@ -25,19 +24,21 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 // Intervallo tra due pacchetti
 #define send_delay 2000
 
-// Valori radio di dafault
-#define defTxPower 18       // potenza Tx (0-18 dBm, potrebbe variare con altri moduli)
-#define defRxGain 0         // guadagno Rx (0-6 dB, con 0 è automatico)
-#define defSpredFactor 12   // fattore di diffusione (12 mele)
-#define defSignBand 250E3   // larghezza di banda (7.8 10.4 15.6 20.8 31.25 41.7 62.5 125 250 500 + E3)
-#define defCodRate 8        // velocità di codifica (8 banane)
-
+// default message
 #define defMessage "MSG"
 #define PrintDisplaySignal true
 
 // wifi data
 #define SSID "FASTGATE_2.4G"
 #define PWD "Af4339XcbrSn"
+
+// Valori radio di dafault
+#define defSpredFactor 12   // fattore di diffusione (12 mele)
+#define defCodRate 8        // velocità di codifica (8 banane)
+double bandwidth = 250E3;   // larghezza di banda (7.8 10.4 15.6 20.8 31.25 41.7 62.5 125 250 500 + E3)
+int txpower = 18;       // potenza Tx (0-18 dBm, dipende dal moduli)
+int gain = 0;         // guadagno Rx (0-6 dB, con 0 è automatico)
+
 
 
 
@@ -209,7 +210,7 @@ int settings_menu() {
 
 // ####################################################################################################
 
-void set_gain(int gain) {
+void set_gain() { //int gain
   // Serial.println("\r\nvalue: 0-6 (0 => automatico)");
 
   // while (!Serial.available());
@@ -238,11 +239,11 @@ void set_bandwidth(double bandwidth) {
 
 // ####################################################################################################
 
-void set_txpower(int dbm) {
+void set_txpower(int txpower) {
   // Serial.println("(2-20)(18 => default)");
 
-  LoRa.setTxPower(dbm);
-  Serial.println("txpower = " + String(dbm));
+  LoRa.setTxPower(txpower);
+  Serial.println("txpower = " + String(txpower));
 
   Serial.println();
 }
@@ -478,7 +479,8 @@ void select_mod(int mod){
 void get_bees() {
   DynamicJsonDocument doc(256);
   char JSONmessageBuffer[256];
-
+  
+  doc["rssi_radio"] = LoRa.rssi();
   doc["rssi"] = packet.rssi;
   doc["snr"] = packet.snr;
   doc["text"] = packet.text;
@@ -491,6 +493,19 @@ void get_bees() {
   http_rest_server.send(256, "application/json", JSONmessageBuffer);
 }
 
+// ####################################################################################################
+
+void get_settings() {
+  DynamicJsonDocument doc(256);
+  char JSONmessageBuffer[256];
+
+  doc["bandwidth"] = bandwidth;
+  doc["txpower"] = txpower;
+  doc["gain"] = gain;
+
+  serializeJson(doc, JSONmessageBuffer);
+  http_rest_server.send(256, "application/json", JSONmessageBuffer);
+}
 
 // ####################################################################################################
 
@@ -505,9 +520,6 @@ void post_bees(){
     Serial.println("mamt");
   }
 
-  // String bandwidth = doc["bandwidth"];
-  // String txpower = doc["txpower"];
-  // String gain = doc["gain"];
   String mod = doc["mod"];
 
 
@@ -516,13 +528,37 @@ void post_bees(){
   http_rest_server.send(256, "text/plain", "ok");
 }
 
+// ####################################################################################################
+
+void post_settings(){
+  String postBody = http_rest_server.arg("plain");
+  DynamicJsonDocument doc(256);
+  DeserializationError error = deserializeJson(doc, postBody); // DeserializationError error = 
+
+  if(error == (DeserializationError::Ok)){
+    Serial.println("ho yea im working");
+  }else {
+    Serial.println("mamt");
+  }
+
+  String bandwidth = doc["bandwidth"];
+  String txpower = doc["txpower"];
+  String gain = doc["gain"];
+
+  Serial.print(bandwidth);
+  Serial.print(txpower);
+  Serial.print(gain);
+
+  http_rest_server.send(256, "text/plain", "ok");
+}
 
 // ####################################################################################################
 
-
 void config_rest_server_routing() {
   http_rest_server.on("/get", HTTP_GET, get_bees);
+  http_rest_server.on("/settings", HTTP_GET , get_settings);
   http_rest_server.on("/post", HTTP_POST , post_bees);
+  http_rest_server.on("/post_settings", HTTP_POST , post_settings);
 }
 
 // ####################################################################################################
@@ -576,10 +612,10 @@ void setup() {
   }
 
   // setto le impostazioni base della radio
-  LoRa.setTxPower(defTxPower);              // setto la potenza d'uscita (18 dBm)
-  LoRa.setGain(defRxGain);                  // setto il guadagno in ingresso (0-6 dB con 0 è automatico)
+  LoRa.setTxPower(txpower);              // setto la potenza d'uscita (18 dBm)
+  LoRa.setGain(gain);                  // setto il guadagno in ingresso (0-6 dB con 0 è automatico)
   LoRa.setSpreadingFactor(defSpredFactor);  // setto il fattore di diffusione (12 mele)
-  LoRa.setSignalBandwidth(defSignBand);     // setto la larghezza di banda (7.8 10.4 15.6 20.8 31.25 41.7 62.5 125 250 500)
+  LoRa.setSignalBandwidth(bandwidth);     // setto la larghezza di banda (7.8 10.4 15.6 20.8 31.25 41.7 62.5 125 250 500)
   LoRa.setCodingRate4(defCodRate);          // setto la velocità di codifica (8)
 
   // wifi connection

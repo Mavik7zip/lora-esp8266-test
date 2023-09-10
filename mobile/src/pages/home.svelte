@@ -8,7 +8,13 @@
     Link,
     Toolbar,
     Block,
+    Panel,
+    Button,
+    ListInput,
+    Range,
   } from 'framework7-svelte';
+
+  import { onMount } from 'svelte';
 
   import { Line } from 'svelte-chartjs';
 
@@ -24,6 +30,7 @@
   } from 'chart.js';
 
 
+
   Chart.register(
     Title,
     Tooltip,
@@ -34,7 +41,11 @@
     CategoryScale
   );
 
-  let packet;
+  import { settings } from '../js/store';
+  import { ip } from '../js/store';
+
+
+  let packet = {"rssi_radio": 0, "rssi": 0, "snr": 0, "text": 0, "ping": 0, "counter": 0, "is_arrive": false, "mod": 0,};
   let rssi=[];
   let snr=[];
   let counter = 0;
@@ -42,12 +53,17 @@
   let chartRef;
   let mod;
 
-  const ip = "http://192.168.100.166";
+
+  onMount( async () => {
+    const settings_res = await fetch($ip.concat("/settings"));
+    $settings = await settings_res.json();
+  });
 
 
   setInterval(async function() {
-    const res = await fetch(ip.concat("/get"));
-    packet = await res.json();
+    const get_res = await fetch($ip.concat("/get"));
+    packet = await get_res.json();
+    
 
     rssi.push(packet.rssi);
     snr.push(packet.snr);
@@ -55,6 +71,7 @@
     if(rssi.length > 16){
       rssi.shift();
       snr.shift();
+      timestamp.shift();
     }
 
     timestamp.push(counter);
@@ -64,7 +81,7 @@
       chartRef.update();
     }
     
-  }, 5000); 
+  }, 1000); 
 
   export const data = {
     labels: timestamp,
@@ -74,9 +91,9 @@
     ],
   };
 
-async function post(){
-  const res = await fetch(ip.concat("/post"), {method: "post",body: JSON.stringify({"mod": mod})});
-}
+  async function post(){
+    const res = await fetch($ip.concat("/post"), {method: "post",body: JSON.stringify({"mod": mod})});
+  }
 
 </script>
 
@@ -86,8 +103,9 @@ async function post(){
       <div>
         <div class="settings-square">
           <div style="top: 8px;">
-            <div>BWD<span id="bandwidth"></span></div>
-            <div>TXP<span id="TXpower"></span></div>
+            <div>BWD {$settings.bandwidth/1000}khz</div>
+            <div>TXP {$settings.txpower}dbm</div>
+            <div>RSR {packet.rssi_radio}dbm</div>
           </div>
         </div>
         <div class="mod-box">
@@ -107,43 +125,45 @@ async function post(){
       </div>
     </div>
     <div class="text-box">
-      <div>ciro</div>
+      <div>
+        <Button raised fill panelOpen="left">Open left panel</Button>
+      </div>
     </div>
   </body>
 </Page>
 
 
 <style>
-.settings-square{
-  width: 100%;
-  height: 120px;
-  background-color: yellow;
-}
+  .settings-square{
+    width: 100%;
+    height: 120px;
+    background-color: yellow;
+  }
 
-.chart-square {
-  width: 100%;
-  height: 100%;
-  background-color: rgb(190, 92, 190);
-}
+  .chart-square {
+    width: 100%;
+    height: 100%;
+    background-color: rgb(190, 92, 190);
+  }
 
-.top-grid {
-  display: grid;
-  grid-template-columns: 40% 60%;
-}
+  .top-grid {
+    display: grid;
+    grid-template-columns: 40% 60%;
+  }
 
-.mod-box {
-  width: 100%;
-  height: 40px;
-  background-color: palevioletred;
-}
+  .mod-box {
+    width: 100%;
+    height: 40px;
+    background-color: palevioletred;
+  }
 
-.text-box {
-  width: 100%;
-  height: 360px;
-  background-color: blue;
-}
+  .text-box {
+    width: 100%;
+    height: 360px;
+    background-color: blue;
+  }
 
-body{
-  margin: 0px;
-}
+  body{
+    margin: 0px;
+  }
 </style>
