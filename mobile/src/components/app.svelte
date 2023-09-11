@@ -18,7 +18,7 @@
                       max={20}
                       label={true}
                       step={1}
-                      value={$settings.txpower}
+                      bind:value={$settings.txpower}
                       scale={true}
                       scaleSteps={5}
                       scaleSubSteps={20}
@@ -34,7 +34,7 @@
                       max={6}
                       label={true}
                       step={1}
-                      value={$settings.gain}
+                      bind:value={$settings.gain}
                       scale={true}
                       scaleSteps={6}
                       scaleSubSteps={6}
@@ -50,7 +50,7 @@
                       max={500}
                       label={true}
                       step={1}
-                      value={($settings.bandwidth/1000)}
+                      bind:value={$settings.bandwidth}
                       scale={true}
                       scaleSteps={1}
                       scaleSubSteps={1}
@@ -115,7 +115,9 @@
   })
 
   async function post(){
-    const res = await fetch($ip.concat("/post_settings"), {method: "post",body: JSON.stringify({"mod": mod})});
+    const res = await fetch($ip.concat("/post_settings"),
+      {method: "post",body: JSON.stringify({"bandwidth": $settings.bandwidth, "txpower": $settings.txpower, "gain": $settings.gain})}
+    );
   }
 </script>
 

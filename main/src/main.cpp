@@ -98,6 +98,24 @@ void print_display() {
 
 // ####################################################################################################
 
+void print_settings() {
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
+  display.setCursor(0, 0);
+  display.print(F("TX: "));
+  display.print(txpower);
+  display.setCursor(0, 10);
+  display.print(F("BDW: "));
+  display.print(bandwidth/1000);
+  display.setCursor(0, 20);
+  display.print(F("Gain: "));
+  display.print(gain);
+  display.display();
+}
+
+// ####################################################################################################
+
 void print_serial() {
   Serial.println("\r\n    text: " + String(packet.text));
   Serial.println("  n° pkt: " + String(packet.counter));
@@ -499,7 +517,7 @@ void get_settings() {
   DynamicJsonDocument doc(256);
   char JSONmessageBuffer[256];
 
-  doc["bandwidth"] = bandwidth;
+  doc["bandwidth"] = (bandwidth/1000);
   doc["txpower"] = txpower;
   doc["gain"] = gain;
 
@@ -533,23 +551,24 @@ void post_bees(){
 void post_settings(){
   String postBody = http_rest_server.arg("plain");
   DynamicJsonDocument doc(256);
-  DeserializationError error = deserializeJson(doc, postBody); // DeserializationError error = 
+  deserializeJson(doc, postBody);
 
-  if(error == (DeserializationError::Ok)){
-    Serial.println("ho yea im working");
-  }else {
-    Serial.println("mamt");
-  }
+  String bandwidth_raw = doc["bandwidth"];
+  String txpower_raw = doc["txpower"];
+  String gain_raw = doc["gain"];
 
-  String bandwidth = doc["bandwidth"];
-  String txpower = doc["txpower"];
-  String gain = doc["gain"];
+  bandwidth = (bandwidth_raw.toInt())*1000;
+  txpower = txpower_raw.toInt();
+  gain = gain_raw.toInt();
 
-  Serial.print(bandwidth);
-  Serial.print(txpower);
-  Serial.print(gain);
+  LoRa.setTxPower(txpower);
+  LoRa.setGain(gain);
+  LoRa.setSignalBandwidth((bandwidth));
+
+  print_settings();
 
   http_rest_server.send(256, "text/plain", "ok");
+
 }
 
 // ####################################################################################################

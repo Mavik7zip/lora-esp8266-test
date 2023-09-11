@@ -103,7 +103,7 @@
       <div>
         <div class="settings-square">
           <div style="top: 8px;">
-            <div>BWD {$settings.bandwidth/1000}khz</div>
+            <div>BWD {$settings.bandwidth}khz</div>
             <div>TXP {$settings.txpower}dbm</div>
             <div>RSR {packet.rssi_radio}dbm</div>
           </div>
@@ -127,6 +127,12 @@
     <div class="text-box">
       <div>
         <Button raised fill panelOpen="left">Open left panel</Button>
+        <div class="packet-box">
+          <div>snr {packet.snr}db</div>
+          <div>rssi {packet.rssi}dbm</div>
+          <div>text {packet.text}</div>
+          <div>N° {packet.counter}</div>
+        </div>
       </div>
     </div>
   </body>
@@ -165,5 +171,9 @@
 
   body{
     margin: 0px;
+  }
+
+  .packet-box {
+    padding: 10%;
   }
 </style>
