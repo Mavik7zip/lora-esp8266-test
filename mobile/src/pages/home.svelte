@@ -15,8 +15,8 @@
   } from 'framework7-svelte';
 
   import { onMount } from 'svelte';
-
   import { Line } from 'svelte-chartjs';
+  import { CapacitorHttp } from '@capacitor/core';
 
   import {
     Chart,
@@ -53,16 +53,24 @@
   let chartRef;
   let mod;
 
+  
 
   onMount( async () => {
-    const settings_res = await fetch($ip.concat("/settings"));
-    $settings = await settings_res.json();
+    const options = {
+      url: $ip.concat("/settings"),
+    };
+    const response = await CapacitorHttp.get(options);
+    $settings = response.data;
   });
 
 
   setInterval(async function() {
-    const get_res = await fetch($ip.concat("/get"));
-    packet = await get_res.json();
+
+    const options = {
+      url: $ip.concat("/get"),
+    };
+    const response = await CapacitorHttp.get(options);
+    packet = response.data;
     
 
     rssi.push(packet.rssi);
@@ -92,7 +100,13 @@
   };
 
   async function post(){
-    const res = await fetch($ip.concat("/post"), {method: "post",body: JSON.stringify({"mod": mod})});
+    // const res = await fetch($ip.concat("/post"), {method: "post",body: JSON.stringify({"mod": mod})});
+    const options = {
+      url: $ip.concat("/post"),
+      data: { "mod": mod },
+    };
+
+    const response = await CapacitorHttp.post(options);
   }
 
 </script>

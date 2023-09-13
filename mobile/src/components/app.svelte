@@ -69,6 +69,8 @@
 </App>
 <script>
   import { onMount } from 'svelte';
+  import { CapacitorHttp } from '@capacitor/core';
+
 
   import {
     f7,
@@ -114,10 +116,14 @@
     });
   })
 
+
   async function post(){
-    const res = await fetch($ip.concat("/post_settings"),
-      {method: "post",body: JSON.stringify({"bandwidth": $settings.bandwidth, "txpower": $settings.txpower, "gain": $settings.gain})}
-    );
+    const options = {
+      url: $ip.concat("/post_settings"),
+      data: {"bandwidth": $settings.bandwidth, "txpower": $settings.txpower, "gain": $settings.gain},
+    };
+
+    const response = await CapacitorHttp.post(options);
   }
 </script>
 
