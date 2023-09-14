@@ -33,8 +33,8 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 #define PWD "Af4339XcbrSn"
 
 // Valori radio di dafault
-#define defSpredFactor 12   // fattore di diffusione (12 mele)
-#define defCodRate 8        // velocità di codifica (8 banane)
+int spredingfactor = 12;   // fattore di diffusione (12 mele)
+int codrate = 8;        // velocità di codifica (8 banane)
 double bandwidth = 250E3;   // larghezza di banda (7.8 10.4 15.6 20.8 31.25 41.7 62.5 125 250 500 + E3)
 int txpower = 18;       // potenza Tx (0-18 dBm, dipende dal moduli)
 int gain = 0;         // guadagno Rx (0-6 dB, con 0 è automatico)
@@ -520,6 +520,8 @@ void get_settings() {
   doc["bandwidth"] = (bandwidth/1000);
   doc["txpower"] = txpower;
   doc["gain"] = gain;
+  doc["spredingfactor"] = spredingfactor;
+  doc["codrate"] = codrate;
 
   serializeJson(doc, JSONmessageBuffer);
   http_rest_server.send(256, "application/json", JSONmessageBuffer);
@@ -556,14 +558,21 @@ void post_settings(){
   String bandwidth_raw = doc["bandwidth"];
   String txpower_raw = doc["txpower"];
   String gain_raw = doc["gain"];
+  String spredingfactor_raw = doc["spredingfactor"];
+  String codrate_raw = doc["codrate"];
+
 
   bandwidth = (bandwidth_raw.toInt())*1000;
   txpower = txpower_raw.toInt();
   gain = gain_raw.toInt();
+  spredingfactor = spredingfactor_raw.toInt();
+  codrate = codrate_raw.toInt();
 
   LoRa.setTxPower(txpower);
   LoRa.setGain(gain);
   LoRa.setSignalBandwidth((bandwidth));
+  LoRa.setSpreadingFactor(spredingfactor);
+  LoRa.setCodingRate4(codrate);
 
   print_settings();
 
@@ -633,9 +642,9 @@ void setup() {
   // setto le impostazioni base della radio
   LoRa.setTxPower(txpower);              // setto la potenza d'uscita (18 dBm)
   LoRa.setGain(gain);                  // setto il guadagno in ingresso (0-6 dB con 0 è automatico)
-  LoRa.setSpreadingFactor(defSpredFactor);  // setto il fattore di diffusione (12 mele)
+  LoRa.setSpreadingFactor(spredingfactor);  // setto il fattore di diffusione (12 mele)
   LoRa.setSignalBandwidth(bandwidth);     // setto la larghezza di banda (7.8 10.4 15.6 20.8 31.25 41.7 62.5 125 250 500)
-  LoRa.setCodingRate4(defCodRate);          // setto la velocità di codifica (8)
+  LoRa.setCodingRate4(codrate);          // setto la velocità di codifica (8)
 
   // wifi connection
   WiFi.begin(SSID, PWD);
