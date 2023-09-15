@@ -17,6 +17,8 @@
   import { onMount } from 'svelte';
   import { Line } from 'svelte-chartjs';
   import { CapacitorHttp } from '@capacitor/core';
+  // import NetworkScanner from 'network-scanner-js';
+  // const netScan = new NetworkScanner();
 
   import {
     Chart,
@@ -43,6 +45,7 @@
 
   import { settings } from '../js/store';
   import { ip } from '../js/store';
+    import { serializeObject } from 'framework7/shared/utils';
 
 
   let packet = {"rssi_radio": 0, "rssi": 0, "snr": 0, "text": 0, "ping": 0, "counter": 0, "is_arrive": false, "mod": 0,};
@@ -53,9 +56,14 @@
   let chartRef;
   let mod;
 
-  
+
 
   onMount( async () => {
+    // netScan.ipScan('192.168.100.0-254', host => {
+    //   console.log(host);
+    // })
+
+
     const options = {
       url: $ip.concat("/settings"),
     };
@@ -101,6 +109,7 @@
 
   async function post(){
     // const res = await fetch($ip.concat("/post"), {method: "post",body: JSON.stringify({"mod": mod})});
+
     const options = {
       url: $ip.concat("/post"),
       data: { "mod": mod },

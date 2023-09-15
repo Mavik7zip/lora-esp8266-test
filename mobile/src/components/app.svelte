@@ -47,7 +47,7 @@
                   <span slot="input">
                     <div class="slider">
                       <Range
-                        min={7.4}
+                        min={7.8}
                         max={500}
                         label={true}
                         step={1}
@@ -152,6 +152,37 @@
 
 
   async function post(){
+    if($settings.bandwidth < 9.1){
+      $settings.bandwidth = 7.8;
+
+    }else if($settings.bandwidth > 9.1 && $settings.bandwidth < 13){
+      $settings.bandwidth = 10.4;
+
+    }else if($settings.bandwidth > 13 && $settings.bandwidth < 18.2){
+      $settings.bandwidth = 15.6;
+      
+    }else if($settings.bandwidth > 18.2 && $settings.bandwidth < 26.025){
+      $settings.bandwidth = 20.8;
+      
+    }else if($settings.bandwidth > 26.025 && $settings.bandwidth < 36.475){
+      $settings.bandwidth = 31.25;
+      
+    }else if($settings.bandwidth > 36.475 && $settings.bandwidth < 52.1){
+      $settings.bandwidth = 41.7;
+      
+    }else if($settings.bandwidth > 52.1 && $settings.bandwidth < 93.75){
+      $settings.bandwidth = 62.5;
+      
+    }else if($settings.bandwidth > 93.75 && $settings.bandwidth < 187.5){
+      $settings.bandwidth = 125;
+      
+    }else if($settings.bandwidth > 187.5 && $settings.bandwidth < 375){
+      $settings.bandwidth = 250;
+      
+    }else if($settings.bandwidth > 375){
+      $settings.bandwidth = 500;
+    }
+
     const options = {
       url: $ip.concat("/post_settings"),
       data: {"bandwidth": $settings.bandwidth, "txpower": $settings.txpower, "gain": $settings.gain, "spredingfactor": $settings.spredingfactor, "codrate": $settings.codrate},

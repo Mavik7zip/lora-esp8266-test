@@ -98,7 +98,7 @@ void print_display() {
 
 // ####################################################################################################
 
-void print_settings() {
+void print_display_settings() {
   display.clearDisplay();
   display.setTextSize(1);
   display.setTextColor(WHITE);
@@ -304,16 +304,16 @@ void receive_mode() {
 
   while (quit != 1) {
     if (packet.is_arrive == true) {
-      print_serial();
+      // print_serial();
       packet.is_arrive = false;
     }
 
     delay(500);
 
-    if (Serial.available() > 0) {
-      if (Serial.read() == '0') quit = true;
-      serialFlush();
-    }
+    // if (Serial.available() > 0) {
+    //   if (Serial.read() == '0') quit = true;
+    //   serialFlush();
+    // }
 
     http_rest_server.handleClient();
   }
@@ -351,10 +351,10 @@ void send_mode(String message) {
 
     delay(send_delay);
 
-    if (Serial.available() > 0) {
-      if (Serial.read() == '0') quit = true;
-      serialFlush();
-    }
+    // if (Serial.available() > 0) {
+    //   if (Serial.read() == '0') quit = true;
+    //   serialFlush();
+    // }
 
     http_rest_server.handleClient();
   }
@@ -380,10 +380,10 @@ void send_message_mode() {
 
     counter++;
 
-    if (Serial.available() > 0) {
-      if (Serial.read() == '0') quit = true;
-      serialFlush();
-    }
+    // if (Serial.available() > 0) {
+    //   if (Serial.read() == '0') quit = true;
+    //   serialFlush();
+    // }
 
     http_rest_server.handleClient();
   }
@@ -432,10 +432,10 @@ void bidirectional_mode() {
 
     delay(send_delay / 4);
 
-    if (Serial.available() > 0) {
-      if (Serial.read() == '0') quit = true;
-      serialFlush();
-    }
+    // if (Serial.available() > 0) {
+    //   if (Serial.read() == '0') quit = true;
+    //   serialFlush();
+    // }
 
     http_rest_server.handleClient();
   }
@@ -534,13 +534,14 @@ void post_bees(){
   DynamicJsonDocument doc(256);
   DeserializationError error = deserializeJson(doc, postBody); // DeserializationError error = 
 
-  if(error == (DeserializationError::Ok)){
-    Serial.println("ho yea im working");
-  }else {
-    Serial.println("mamt");
-  }
+  // if(error == (DeserializationError::Ok)){
+  //   Serial.println("ho yea im working");
+  // }else {
+  //   Serial.println("mamt");
+  // }
 
   String mod = doc["mod"];
+  Serial.println(mod);
 
 
   select_mod((mod.toInt()));
@@ -568,13 +569,19 @@ void post_settings(){
   spredingfactor = spredingfactor_raw.toInt();
   codrate = codrate_raw.toInt();
 
+  Serial.println(bandwidth);
+  Serial.println(txpower);
+  Serial.println(gain);
+  Serial.println(spredingfactor);
+  Serial.println(codrate);
+
   LoRa.setTxPower(txpower);
   LoRa.setGain(gain);
   LoRa.setSignalBandwidth((bandwidth));
   LoRa.setSpreadingFactor(spredingfactor);
   LoRa.setCodingRate4(codrate);
 
-  print_settings();
+  print_display_settings();
 
   http_rest_server.send(256, "text/plain", "ok");
 
