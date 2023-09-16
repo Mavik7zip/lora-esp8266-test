@@ -268,6 +268,18 @@ void set_txpower(int txpower) {
 
 // ####################################################################################################
 
+void CAD() {
+  void channel_detection(boolean signalDetected) {
+    
+  }
+
+  LoRa.channelActivityDetection();
+  LoRa.onCadDone(channel_detection);
+  
+}
+
+// ####################################################################################################
+
 // void set_txpower_amplifier(int dbm) {    l'asciamola per ultima
 //   float watt_request;
 
@@ -569,11 +581,11 @@ void post_settings(){
   spredingfactor = spredingfactor_raw.toInt();
   codrate = codrate_raw.toInt();
 
-  Serial.println(bandwidth_raw);
-  Serial.println(txpower_raw);
-  Serial.println(gain_raw);
-  Serial.println(spredingfactor_raw);
-  Serial.println(codrate_raw);
+  // Serial.println(bandwidth_raw);
+  // Serial.println(txpower_raw);
+  // Serial.println(gain_raw);
+  // Serial.println(spredingfactor_raw);
+  // Serial.println(codrate_raw);
 
   LoRa.setTxPower(txpower);
   LoRa.setGain(gain);
@@ -655,7 +667,6 @@ void setup() {
 
   // wifi connection
   WiFi.begin(SSID, PWD);
-  delay(500);
   while(WiFi.status() != WL_CONNECTED && Ntry < 32){
     delay(500);
     Serial.print(".");

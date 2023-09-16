@@ -106,14 +106,12 @@
   };
 
   async function post(){
-    // const res = await fetch($ip.concat("/post"), {method: "post",body: JSON.stringify({"mod": mod})});
-
     const options = {
       url: $ip.concat("/post"),
       data: { "mod": mod },
     };
 
-    const response = await CapacitorHttp.post(options);
+    await CapacitorHttp.post(options);
   }
 
 </script>

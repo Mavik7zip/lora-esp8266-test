@@ -188,7 +188,7 @@
       data: {"bandwidth": $settings.bandwidth, "txpower": $settings.txpower, "gain": $settings.gain, "spredingfactor": $settings.spredingfactor, "codrate": $settings.codrate},
     };
 
-    const response = await CapacitorHttp.post(options);
+    await CapacitorHttp.post(options);
   }
 </script>
 
