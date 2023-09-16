@@ -29,8 +29,8 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 #define PrintDisplaySignal true
 
 // wifi data
-#define SSID ""
-#define PWD ""
+#define SSID "FASTGATE_2.4G"
+#define PWD "Af4339XcbrSn"
 
 // Valori radio di dafault
 int spredingfactor = 12;   // fattore di diffusione (12 mele)
@@ -532,7 +532,7 @@ void get_settings() {
 void post_bees(){
   String postBody = http_rest_server.arg("plain");
   DynamicJsonDocument doc(256);
-  DeserializationError error = deserializeJson(doc, postBody); // DeserializationError error = 
+  deserializeJson(doc, postBody); // DeserializationError error = 
 
   // if(error == (DeserializationError::Ok)){
   //   Serial.println("ho yea im working");
@@ -563,17 +563,17 @@ void post_settings(){
   String codrate_raw = doc["codrate"];
 
 
-  bandwidth = (bandwidth_raw.toInt())*1000;
+  bandwidth = (bandwidth_raw.toDouble())*1000;
   txpower = txpower_raw.toInt();
   gain = gain_raw.toInt();
   spredingfactor = spredingfactor_raw.toInt();
   codrate = codrate_raw.toInt();
 
-  Serial.println(bandwidth);
-  Serial.println(txpower);
-  Serial.println(gain);
-  Serial.println(spredingfactor);
-  Serial.println(codrate);
+  Serial.println(bandwidth_raw);
+  Serial.println(txpower_raw);
+  Serial.println(gain_raw);
+  Serial.println(spredingfactor_raw);
+  Serial.println(codrate_raw);
 
   LoRa.setTxPower(txpower);
   LoRa.setGain(gain);

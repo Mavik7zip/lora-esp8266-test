@@ -45,7 +45,6 @@
 
   import { settings } from '../js/store';
   import { ip } from '../js/store';
-    import { serializeObject } from 'framework7/shared/utils';
 
 
   let packet = {"rssi_radio": 0, "rssi": 0, "snr": 0, "text": 0, "ping": 0, "counter": 0, "is_arrive": false, "mod": 0,};
@@ -62,7 +61,6 @@
     // netScan.ipScan('192.168.100.0-254', host => {
     //   console.log(host);
     // })
-
 
     const options = {
       url: $ip.concat("/settings"),
@@ -96,7 +94,7 @@
     if(chartRef != null){
       chartRef.update();
     }
-    
+
   }, 1000); 
 
   export const data = {
