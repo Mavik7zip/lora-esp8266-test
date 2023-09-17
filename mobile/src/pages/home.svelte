@@ -109,6 +109,7 @@
     const options = {
       url: $ip.concat("/post"),
       data: { "mod": mod },
+      headers: { "content-type": "application/json" },
     };
 
     await CapacitorHttp.post(options);

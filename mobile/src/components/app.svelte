@@ -186,6 +186,7 @@
     const options = {
       url: $ip.concat("/post_settings"),
       data: {"bandwidth": $settings.bandwidth, "txpower": $settings.txpower, "gain": $settings.gain, "spredingfactor": $settings.spredingfactor, "codrate": $settings.codrate},
+      headers: { "content-type": "application/json" },
     };
 
     await CapacitorHttp.post(options);
