@@ -17,9 +17,7 @@
   import { onMount } from 'svelte';
   import { Line } from 'svelte-chartjs';
   import { CapacitorHttp } from '@capacitor/core';
-  // import NetworkScanner from 'network-scanner-js';
-  // const netScan = new NetworkScanner();
-
+  
   import {
     Chart,
     Title,
@@ -95,7 +93,7 @@
       chartRef.update();
     }
 
-  }, 1000); 
+  }, 1000);
 
   export const data = {
     labels: timestamp,

@@ -10,90 +10,100 @@
         <Block>
           <List>
             <div class="set_box">
-              <form on:submit|preventDefault={post}>
-                <ListInput label="TXPower" input={false}>
-                  <span slot="input">
-                    <div class="slider">
-                      <Range
-                        min={0}
-                        max={20}
-                        label={true}
-                        step={1}
-                        bind:value={$settings.txpower}
-                        scale={true}
-                        scaleSteps={5}
-                        scaleSubSteps={20}
-                      />
-                    </div>
-                  </span>
-                </ListInput>
-                <ListInput label="Gain" input={false}>
-                  <span slot="input">
-                    <div class="slider">
-                      <Range
-                        min={0}
-                        max={6}
-                        label={true}
-                        step={1}
-                        bind:value={$settings.gain}
-                        scale={true}
-                        scaleSteps={6}
-                        scaleSubSteps={6}
-                      />
-                    </div>
-                  </span>
-                </ListInput>
-                <ListInput label="Bandwidth" input={false}>
-                  <span slot="input">
-                    <div class="slider">
-                      <Range
-                        min={7.8}
-                        max={500}
-                        label={true}
-                        step={1}
-                        bind:value={$settings.bandwidth}
-                        scale={true}
-                        scaleSteps={1}
-                        scaleSubSteps={1}
-                      />
-                    </div>
-                  </span>
-                </ListInput>
-                <ListInput label="spreding-factor" input={false}>
-                  <span slot="input">
-                    <div class="slider">
-                      <Range
-                        min={0}
-                        max={12}
-                        label={true}
-                        step={1}
-                        bind:value={$settings.spredingfactor}
-                        scale={true}
-                        scaleSteps={1}
-                        scaleSubSteps={1}
-                      />
-                    </div>
-                  </span>
-                </ListInput>
-                <ListInput label="coding-rate" input={false}>
-                  <span slot="input">
-                    <div class="slider">
-                      <Range
-                        min={0}
-                        max={8}
-                        label={true}
-                        step={1}
-                        bind:value={$settings.codrate}
-                        scale={true}
-                        scaleSteps={1}
-                        scaleSubSteps={1}
-                      />
-                    </div>
-                  </span>
-                </ListInput>
-                <input type="submit" >
-              </form>
-            </div>
+              <div>
+                <form on:submit|preventDefault={post}>
+                  <ListInput label="TXPower" input={false}>
+                    <span slot="input">
+                      <div class="slider">
+                        <Range
+                          min={0}
+                          max={20}
+                          label={true}
+                          step={1}
+                          bind:value={$settings.txpower}
+                          scale={true}
+                          scaleSteps={5}
+                          scaleSubSteps={20}
+                        />
+                      </div>
+                    </span>
+                  </ListInput>
+                  <ListInput label="Gain" input={false}>
+                    <span slot="input">
+                      <div class="slider">
+                        <Range
+                          min={0}
+                          max={6}
+                          label={true}
+                          step={1}
+                          bind:value={$settings.gain}
+                          scale={true}
+                          scaleSteps={6}
+                          scaleSubSteps={6}
+                        />
+                      </div>
+                    </span>
+                  </ListInput>
+                  <ListInput label="Bandwidth" input={false}>
+                    <span slot="input">
+                      <div class="slider">
+                        <Range
+                          min={7.8}
+                          max={500}
+                          label={true}
+                          step={1}
+                          bind:value={$settings.bandwidth}
+                          scale={true}
+                          scaleSteps={1}
+                          scaleSubSteps={1}
+                        />
+                      </div>
+                    </span>
+                  </ListInput>
+                  <ListInput label="spreding-factor" input={false}>
+                    <span slot="input">
+                      <div class="slider">
+                        <Range
+                          min={0}
+                          max={12}
+                          label={true}
+                          step={1}
+                          bind:value={$settings.spredingfactor}
+                          scale={true}
+                          scaleSteps={1}
+                          scaleSubSteps={1}
+                        />
+                      </div>
+                    </span>
+                  </ListInput>
+                  <ListInput label="coding-rate" input={false}>
+                    <span slot="input">
+                      <div class="slider">
+                        <Range
+                          min={0}
+                          max={8}
+                          label={true}
+                          step={1}
+                          bind:value={$settings.codrate}
+                          scale={true}
+                          scaleSteps={1}
+                          scaleSubSteps={1}
+                        />
+                      </div>
+                    </span>
+                  </ListInput>
+                  <input type="submit">
+                </form>
+              </div>
+              <div>
+                <form on:submit|preventDefault={ip_post}>
+                  <ListInput label="ip-address" floatingLabel type="url" placeholder={$ip} clearButton value={ip_address}>
+                    <i class="icon demo-list-icon" slot="media"/>
+                  </ListInput>
+                  <input type="submit">
+                </form>
+              </div>
+            </div>  
           </List>
         </Block>
       </Page>
@@ -126,6 +136,7 @@
   import { settings } from '../js/store';
   import { ip } from '../js/store';
 
+  let ip_address;
 
 
   // Framework7 Parameters
@@ -190,6 +201,10 @@
     };
 
     await CapacitorHttp.post(options);
+  }
+  
+  async function ip_post(){
+    $ip = "http://"+ ip_address;
   }
 </script>
 
