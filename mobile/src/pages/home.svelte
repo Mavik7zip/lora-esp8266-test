@@ -100,6 +100,9 @@
     datasets: [{
         data: snr,
       },
+      {
+        data: rssi,
+      },
     ],
   };
 
