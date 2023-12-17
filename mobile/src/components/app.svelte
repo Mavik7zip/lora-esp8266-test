@@ -204,7 +204,7 @@
   }
   
   async function ip_post(){
-    $ip = "http://"+ ip_address;
+    $ip = ip_address;
   }
 </script>
 
