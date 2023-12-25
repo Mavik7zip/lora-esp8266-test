@@ -22,7 +22,7 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 #define DIO0 15
 
 // Intervallo tra due pacchetti
-#define send_delay 2000
+#define send_delay 1000
 
 // default message
 #define defMessage "MSG"
@@ -38,7 +38,6 @@ int codrate = 8;        // velocità di codifica (8 banane)
 double bandwidth = 250E3;   // larghezza di banda (7.8 10.4 15.6 20.8 31.25 41.7 62.5 125 250 500 + E3)
 int txpower = 18;       // potenza Tx (0-18 dBm, dipende dal moduli)
 int gain = 0;         // guadagno Rx (0-6 dB, con 0 è automatico)
-
 
 
 
@@ -268,15 +267,15 @@ void set_txpower(int txpower) {
 
 // ####################################################################################################
 
-void CAD() {
-  void channel_detection(boolean signalDetected) {
+// void CAD() {
+//   void channel_detection(boolean signalDetected) {
     
-  }
+//   }
 
-  LoRa.channelActivityDetection();
-  LoRa.onCadDone(channel_detection);
+//   LoRa.channelActivityDetection();
+//   LoRa.onCadDone(channel_detection);
   
-}
+// }
 
 // ####################################################################################################
 
@@ -555,10 +554,9 @@ void post_bees(){
   String mod = doc["mod"];
   Serial.println(mod);
 
+  http_rest_server.send(256, "text/plain", "ok");
 
   select_mod((mod.toInt()));
-
-  http_rest_server.send(256, "text/plain", "ok");
 }
 
 // ####################################################################################################
@@ -602,6 +600,14 @@ void post_settings(){
 // ####################################################################################################
 
 void config_rest_server_routing() {
+  
+  http_rest_server.on("/post", HTTP_OPTIONS, []() {
+    http_rest_server.enableCORS(true);
+  });
+  http_rest_server.on("/post_settings", HTTP_OPTIONS, []() {
+    http_rest_server.enableCORS(true);
+  });
+
   http_rest_server.on("/get", HTTP_GET, get_bees);
   http_rest_server.on("/settings", HTTP_GET , get_settings);
   http_rest_server.on("/post", HTTP_POST , post_bees);
@@ -678,7 +684,11 @@ void setup() {
     display.clearDisplay();
     display.setCursor(0, 0);
     display.print("wifi connected");
+    display.setCursor(0, 6);
+    display.print(WiFi.localIP());
     display.display();
+    Serial.print("Connected with IP: ");
+    Serial.println(WiFi.localIP());
   } else {
     Serial.println("wifi fail");
 

@@ -97,7 +97,7 @@
               </div>
               <div>
                 <form on:submit|preventDefault={ip_post}>
-                  <ListInput label="ip-address" floatingLabel type="url" placeholder={$ip} clearButton value={ip_address}>
+                  <ListInput label="ip-address" floatingLabel type="url" placeholder={$ip} clearButton bind:value={ip_address}>
                     <i class="icon demo-list-icon" slot="media"/>
                   </ListInput>
                   <input type="submit">
@@ -143,8 +143,6 @@
   let f7params = {
     name: 'LoRa-Controller', // App name
     theme: 'auto', // Automatic theme detection
-
-
 
 
     // App store
@@ -204,7 +202,14 @@
   }
   
   async function ip_post(){
+    console.log(ip_address);
     $ip = ip_address;
+
+    const options = {
+      url: $ip.concat("/settings"),
+    };
+    const response = await CapacitorHttp.get(options);
+    $settings = response.data;
   }
 </script>
 
