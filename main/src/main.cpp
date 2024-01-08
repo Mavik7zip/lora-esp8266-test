@@ -684,7 +684,7 @@ void setup() {
     display.clearDisplay();
     display.setCursor(0, 0);
     display.print("wifi connected");
-    display.setCursor(0, 6);
+    display.setCursor(0, 12);
     display.print(WiFi.localIP());
     display.display();
     Serial.print("Connected with IP: ");
