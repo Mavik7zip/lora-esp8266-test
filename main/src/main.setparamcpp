@@ -1,0 +1,51 @@
+#include <Arduino.h>
+#include <LoRa_E22.h>
+#include <Adafruit_I2CDevice.h>
+#include <SPI.h>
+
+
+#define DESTINATION_ADDL 2
+
+//LoRa_E22 e22ttl(RX, TX, AUX, M0, M1);
+LoRa_E22 e22ttl(D7, D8, D4, D6, D5);
+
+
+void setup() {
+  Serial.begin(115200);
+  delay(500);
+ 
+  // Startup all pins and UART
+  e22ttl.begin();
+ 
+    ResponseStructContainer c;
+
+    c = e22ttl.getConfiguration();
+    Configuration configuration = *(Configuration*) c.data;
+    Serial.println(c.status.getResponseDescription());
+    configuration.ADDL = 0x03;
+    configuration.ADDH = 0x00;
+    configuration.NETID = 0x00;
+ 
+    configuration.CHAN = 20;
+ 
+    configuration.SPED.uartBaudRate = UART_BPS_115200;
+    configuration.SPED.airDataRate = AIR_DATA_RATE_010_24;
+    configuration.SPED.uartParity = MODE_00_8N1;
+ 
+    configuration.OPTION.subPacketSetting = SPS_240_00;
+    configuration.OPTION.RSSIAmbientNoise = RSSI_AMBIENT_NOISE_DISABLED;
+    configuration.OPTION.transmissionPower = POWER_22;
+ 
+    configuration.TRANSMISSION_MODE.enableRSSI = RSSI_DISABLED;
+    configuration.TRANSMISSION_MODE.fixedTransmission = FT_TRANSPARENT_TRANSMISSION;
+    configuration.TRANSMISSION_MODE.enableRepeater = REPEATER_DISABLED;
+    configuration.TRANSMISSION_MODE.enableLBT = LBT_DISABLED;
+    configuration.TRANSMISSION_MODE.WORTransceiverControl = WOR_RECEIVER;
+    configuration.TRANSMISSION_MODE.WORPeriod = WOR_2000_011;
+    e22ttl.setConfiguration(configuration, WRITE_CFG_PWR_DWN_SAVE);
+    c.close();
+}
+ 
+void loop() {
+
+}
