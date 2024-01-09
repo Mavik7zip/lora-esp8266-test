@@ -2,18 +2,21 @@
 #include <SPI.h>
 #include <LoRa.h>
 #include <Wire.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
+#include <Adafruit_I2CDevice.h>
+// #include <Adafruit_GFX.h>
+// #include <Adafruit_SSD1306.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 #include <ArduinoJson.h>
+#include <LoRa_E22.h>
+#include <Adafruit_I2CDevice.h>
 
 
 // Dichiarazione per il display SSD1306 connesso all'I2C
-#define SCREEN_WIDTH 128 // larghezza in pixel
-#define SCREEN_HEIGHT 64 // altezza in pixel
-#define OLED_RESET    -1 // (pin di reset, -1 è lo stesso pin di arduino)
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+// #define SCREEN_WIDTH 128 // larghezza in pixel
+// #define SCREEN_HEIGHT 64 // altezza in pixel
+// #define OLED_RESET    -1 // (pin di reset, -1 è lo stesso pin di arduino)
+// Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 
 // Pin del modulo lora
@@ -32,13 +35,17 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 #define SSID "FASTGATE_2.4G"
 #define PWD "Af4339XcbrSn"
 
+#define ebyte_send true
+#define ebyte_recive true
+
+#define DESTINATION_ADDL 2
+
 // Valori radio di dafault
 int spredingfactor = 12;   // fattore di diffusione (12 mele)
 int codrate = 8;        // velocità di codifica (8 banane)
 double bandwidth = 250E3;   // larghezza di banda (7.8 10.4 15.6 20.8 31.25 41.7 62.5 125 250 500 + E3)
 int txpower = 18;       // potenza Tx (0-18 dBm, dipende dal moduli)
 int gain = 0;         // guadagno Rx (0-6 dB, con 0 è automatico)
-
 
 
 int slt = 48;
@@ -57,6 +64,9 @@ struct {
 
 ESP8266WebServer http_rest_server(80);
 
+LoRa_E22 e22ttl(0, 0, 0, 0, 0);
+
+
 // ####################################################################################################
 
 void send_mode(String message);
@@ -71,47 +81,47 @@ void serialFlush() {
 
 // ####################################################################################################
 
-void print_mod(String mod){
-  display.clearDisplay();
-  display.setTextSize(1);
-  display.setTextColor(WHITE);
-  display.setCursor(0, 0);
-  display.print(mod);
-  display.display();
-}
+// void print_mod(String mod){
+//   display.clearDisplay();
+//   display.setTextSize(1);
+//   display.setTextColor(WHITE);
+//   display.setCursor(0, 0);
+//   display.print(mod);
+//   display.display();
+// }
 
 // ####################################################################################################
 
-void print_display() {
-  display.clearDisplay();
-  display.setTextSize(2);
-  display.setTextColor(WHITE);
-  display.setCursor(0, 0);
-  display.print(F("Rssi: "));
-  display.print(packet.rssi);
-  display.setCursor(0, 30);
-  display.print(F("Snr: "));
-  display.print(packet.snr);
-  display.display();
-}
+// void print_display() {
+//   display.clearDisplay();
+//   display.setTextSize(2);
+//   display.setTextColor(WHITE);
+//   display.setCursor(0, 0);
+//   display.print(F("Rssi: "));
+//   display.print(packet.rssi);
+//   display.setCursor(0, 30);
+//   display.print(F("Snr: "));
+//   display.print(packet.snr);
+//   display.display();
+// }
 
 // ####################################################################################################
 
-void print_display_settings() {
-  display.clearDisplay();
-  display.setTextSize(1);
-  display.setTextColor(WHITE);
-  display.setCursor(0, 0);
-  display.print(F("TX: "));
-  display.print(txpower);
-  display.setCursor(0, 10);
-  display.print(F("BDW: "));
-  display.print(bandwidth/1000);
-  display.setCursor(0, 20);
-  display.print(F("Gain: "));
-  display.print(gain);
-  display.display();
-}
+// void print_display_settings() {
+//   display.clearDisplay();
+//   display.setTextSize(1);
+//   display.setTextColor(WHITE);
+//   display.setCursor(0, 0);
+//   display.print(F("TX: "));
+//   display.print(txpower);
+//   display.setCursor(0, 10);
+//   display.print(F("BDW: "));
+//   display.print(bandwidth/1000);
+//   display.setCursor(0, 20);
+//   display.print(F("Gain: "));
+//   display.print(gain);
+//   display.display();
+// }
 
 // ####################################################################################################
 
@@ -306,7 +316,7 @@ void rssi_radio() {
 
 void receive_mode() {
   Serial.println("  Starting receive mode");
-  print_mod("receive mode");
+  // print_mod("receive mode");
 
   boolean quit = false;
 
@@ -336,18 +346,27 @@ void receive_mode() {
 // ####################################################################################################
 
 void send_data(String message, int counter, int id) {
-  LoRa.beginPacket();
-  LoRa.println(message);
-  LoRa.println(counter);
-  LoRa.println(id);
-  LoRa.endPacket();
+  if(ebyte_send == true){
+    e22ttl.begin();
+    e22ttl.setMode(MODE_1_WOR);
+    ResponseStatus rs = e22ttl.sendFixedMessage(0, DESTINATION_ADDL, 23, "Hello, world?");
+    Serial.println(rs.getResponseDescription());
+  
+    e22ttl.setMode(MODE_0_NORMAL);
+  }else {
+    LoRa.beginPacket();
+    LoRa.println(message);
+    LoRa.println(counter);
+    LoRa.println(id);
+    LoRa.endPacket();
+  }  
 }
 
 // ####################################################################################################
 
 void send_mode(String message) {
   Serial.println("  Starting send ciro mode");
-  print_mod("send mode");
+  // print_mod("send mode");
 
   boolean quit = false;
   int counter = 0;
@@ -407,7 +426,7 @@ void send_message_mode() {
 
 void bidirectional_mode() {
   Serial.println("  Starting bidirectional mode");
-  print_mod("bidirec mode");
+  // print_mod("bidirec mode");
 
   boolean quit = false;
   int counter = 0;
@@ -458,7 +477,7 @@ void bidirectional_mode() {
 
 void bidirectional_message() {
   Serial.println("  Starting bidirectional message mode");
-  print_mod("bidirec mess mode");
+  // print_mod("bidirec mess mode");
 
 
   boolean quit = 1;
@@ -591,7 +610,7 @@ void post_settings(){
   LoRa.setSpreadingFactor(spredingfactor);
   LoRa.setCodingRate4(codrate);
 
-  print_display_settings();
+  // print_display_settings();
 
   http_rest_server.send(256, "text/plain", "ok");
 
@@ -630,38 +649,45 @@ void setup() {
   Serial.println("\r\n\r\nLoRa Main code");
 
   // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
-  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { //Address 0x3D for 128x64
-    Serial.println("SSD1306 starting fail");
-  } else {
-    Serial.println("SSD1306 started");
+  // if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { //Address 0x3D for 128x64
+  //   Serial.println("SSD1306 starting fail");
+  // } else {
+  //   Serial.println("SSD1306 started");
 
-    // scrivo le prime cose cose sul display
-    //display.display();
-    display.clearDisplay(); // questo non esce mai
-    display.setTextSize(1);
-    display.setTextColor(WHITE);
-    display.setCursor(19, 26);
-    display.print("LoRa Main");
-    display.display();
-  }
+  //   // scrivo le prime cose cose sul display
+  //   //display.display();
+  //   display.clearDisplay(); // questo non esce mai
+  //   display.setTextSize(1);
+  //   display.setTextColor(WHITE);
+  //   display.setCursor(19, 26);
+  //   display.print("LoRa Main");
+  //   display.display();
+  // }
 
   // starto l'antenna a 433 MHz
-  LoRa.setPins(NSS, RST, DIO0);
-  if (!LoRa.begin(433E6)) {
-    Serial.println("Starting LoRa failed!");
+  if(ebyte_recive == false || ebyte_send == false){
+    LoRa.setPins(NSS, RST, DIO0);
+    if (!LoRa.begin(433E6)) {
+      Serial.println("Starting LoRa failed!");
 
-    display.clearDisplay();
-    display.setCursor(0, 0);
-    display.print("starting LoRa failed");
-    display.display();
+      // display.clearDisplay();
+      // display.setCursor(0, 0);
+      // display.print("starting LoRa failed");
+      // display.display();
 
-  } else {
-    Serial.println("LoRa started succesfully");
+    } else {
+      Serial.println("LoRa started succesfully");
 
-    display.clearDisplay();
-    display.setCursor(0, 0);
-    display.print("LoRa started succesfully");
-    display.display();
+      // display.clearDisplay();
+      // display.setCursor(0, 0);
+      // display.print("LoRa started succesfully");
+      // display.display();
+    }
+  }else {
+    LoRa_E22 e22ttl(D7, D8, D4, D6, D5);
+
+    e22ttl.begin();
+    e22ttl.setMode(MODE_0_NORMAL);
   }
 
   // setto le impostazioni base della radio
@@ -681,21 +707,21 @@ void setup() {
   if(WiFi.status() == WL_CONNECTED){
     Serial.println("connected");
 
-    display.clearDisplay();
-    display.setCursor(0, 0);
-    display.print("wifi connected");
-    display.setCursor(0, 12);
-    display.print(WiFi.localIP());
-    display.display();
-    Serial.print("Connected with IP: ");
-    Serial.println(WiFi.localIP());
+    // display.clearDisplay();
+    // display.setCursor(0, 0);
+    // display.print("wifi connected");
+    // display.setCursor(0, 12);
+    // display.print(WiFi.localIP());
+    // display.display();
+    // Serial.print("Connected with IP: ");
+    // Serial.println(WiFi.localIP());
   } else {
     Serial.println("wifi fail");
 
-    display.clearDisplay();
-    display.setCursor(0, 0);
-    display.print("wifi fail");
-    display.display();
+    // display.clearDisplay();
+    // display.setCursor(0, 0);
+    // display.print("wifi fail");
+    // display.display();
   }
 
   // starto le apine
@@ -708,54 +734,4 @@ void setup() {
 
 void loop() {
   http_rest_server.handleClient();
-  // slt = menu();
-  
-  // switch (slt) {
-  //   case 1 + 48:
-  //     receive_mode();
-  //     break;
-  //   case 2 + 48:
-  //     send_mode(defMessage);
-  //     break;
-  //   case 3 + 48:
-  //     bidirectional_mode();
-  //     break;
-  //   case 4 + 48:
-  //     bidirectional_message();
-  //     break;
-  //   case 5 + 48:
-  //     send_message_mode();
-  //     break;
-  //   case 6 + 48:
-  //     while (settings_slt != 48) {
-  //       settings_slt = settings_menu();
-
-  //       switch (settings_slt) {
-  //         case 0:
-  //           slt = 0;
-  //           break;
-  //         case 1 + 48:
-  //           set_gain();
-  //           break;
-  //         case 2 + 48:
-  //           set_bandwidth();
-  //           break;
-  //         case 3 + 48:
-  //           set_txpower();
-  //           break;
-  //         case 4 + 48:
-  //           rssi_radio();
-  //           break;
-  //         case 5 + 48:
-  //           set_txpower_amplifier();
-  //           break;
-
-  //         default:
-  //           break;
-  //       }
-  //     } 
-  //     break;
-  //   default:
-  //     break;
-  // }
 }
